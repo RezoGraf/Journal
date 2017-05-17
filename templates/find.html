@@ -1,0 +1,72 @@
+<div class="container">
+  <div class="row">
+    <div class="col-xs-3">
+      <h3>Поиск пациента</h3>
+      <form role="form" id="formx" action="findById" method="post" enctype="application/x-www-from-urlencoded">
+      <div class="input-group">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="text">Найти</button>
+        </span>
+        <input type="text" class="form-control" name="id" id="id" placeholder="Введите № очереди">
+      </div>
+    </form>
+      <br>
+    <form role="form" id="formx" action="findByFio" method="post" enctype="application/x-www-from-urlencoded">
+      <div class="input-group">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="text">Найти</button>
+        </span>
+        <input type="text" class="form-control" name="fio" id="fio" placeholder="Введите Ф.И.О">
+      </div>
+    </form>
+      <h5> Дата записи на прием</h1>
+    <form role="form" id="formx" action="findByDateInvitation" method="post" enctype="application/x-www-from-urlencoded">
+      <div class="input-group">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="text">Найти</button>
+        </span>
+        <input type="date" id="date_record" class="form-control" name="date_record">
+      </div>
+    </form>
+      <h5> Дата постановки в очередь</h1>
+    <form role="form" id="formx" action="findByDateInvitation" method="post" enctype="application/x-www-from-urlencoded">
+      <div class="input-group">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="text">Найти</button>
+        </span>
+        <input type="date" id="date_invitation" class="form-control" name="date_invitation">
+      </div>
+    </form>
+    </div>
+    <div class="col-xs-8">
+      <div>
+      	<table class="table table-hover" id="tablePatient" onclick="clickEvent(event)">
+      		<thead>
+      			<td>
+      			</td>
+      			<td>№</td>
+      			<td>ФИО</td>
+      			<td>Дата рождения</td>
+      		</thead>
+
+      		{{ range $key, $value := . }}
+      		<tr>
+      			<td>
+      				<form action="edit" method="POST" >
+      					<button type="text" class="btn btn-default btn-md">
+      						<input type="hidden" name="id" value="{{$value.Id}}">
+      						<span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+      					</button>
+      				</form>
+      			</td>
+      			<td>{{$value.Id}}</td>
+      			<td>{{$value.Fam}} {{$value.Name}} {{$value.Lastname}}</td>
+      			<td>{{$value.Datebirth}}</td>
+      			<tr>
+
+      			</tr>
+      			{{end}}
+      		</table>
+    </div>
+  </div>
+</div>

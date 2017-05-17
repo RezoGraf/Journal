@@ -1,0 +1,72 @@
+<script type="text/javascript" src="/assets/vuejs/vue2.js" charset="UTF-8"></script>
+<script src="https://cdn.jsdelivr.net/vue.resource/1.2.1/vue-resource.min.js"></script>
+<ul class="breadcrumb">
+	<li><a href="take_to_repair">Главная</a> <span class="divider">/</span></li>
+	<li class="active"> Вызванные пациенты</li>
+</ul>
+
+<div id="infoUser">
+<table class="table table-hover" id="tablePatient">
+			  	<thead>
+			  		<tr>
+			  			<th></th>
+			  			<th style="display:none;"></th>
+			  			<th>Номер очереди</th>
+			  			<th>Дата записи
+			  			<th>ФИО</th>
+			  			<th>Год рождения</th>
+			  			<th>Льготная категория</th>
+			  			<th></th>
+			  		</tr>
+			  	</thead>
+			  	<tbody>
+			  		<tr v-for="(item, $index) in items">
+			  			<template>
+			  				<td style="width: 10px"> <button v-on:click="locationEdit(item)" class="form-control glyphicon glyphicon-user" aria-hidden="true"></button></td>
+			  				<td style="width: auto;" >{item.Id.String}</td>
+			  				<td style="width: auto;">{item.DateRecord.String}</td>
+			  				<td style="width: auto;"> {item.Fam.String} {item.Name.String} {item.Lastname.String}</td>
+			  				<td style="width: auto;">{item.Datebirth.String}</td>
+			  				<td style="width: auto;">{item.Lgotcat.String}</td>
+			  				<td style="width: 10%">
+			  					<a v-on:click="editItem(item, $index, $event)" href="#" title="печать">
+			  						<span class="glyphicon glyphicon-print" aria-hidden="true"></span>
+			  					</a>
+			  				</td>
+			  			</template>
+			  			<!--<template v-if="item.status=='edit'">-->
+			  		</tr>
+			  	</tbody>
+
+			  </table>
+			</div>
+
+<script type="text/javascript">
+var infoUser = new Vue({
+			delimiters: ['{', '}'],
+			el:'#infoUser',
+			data: {
+				items: null
+								},
+
+								mounted:function(){
+									this.setDefaultItems();
+								},
+								methods: {
+									setDefaultItems: function (){
+										//var items;
+										this.$http.get('/take_to_repair_treatment_get').then(data =>{
+											this.items = JSON.parse(data.body);
+											console.log(data.body)
+										});
+
+									},
+									locationEdit: function(item){
+				      					location.href='edit?id='+item.Id.String+'';
+									},
+
+					        }
+					    });
+
+
+</script>

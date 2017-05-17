@@ -1,0 +1,128 @@
+<!-- Button trigger modal -->
+<input id="launch-modal" type="button" class="btn btn-primary" value="Добавить запись">
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" backdrop="static">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Добавить запись</h4>
+      </div>
+      <div class="modal-body">
+			  <form role="form" id="formx" action="javascript:void(null);" onsubmit="call()" method="post" enctype="application/x-www-from-urlencoded">
+					  <div class="form-group">
+							  <label type="name">Код льготной категории</label>
+							  <input type="text" id="name" class="form-control" name="name" placeholder="код" >
+						      <span style='color:red' id='namef'></span>
+					  </div>
+				  	  <div class="form-group">
+							  <label type="name">Расшифровка льготной категории</label>
+					  		  <input type="text" id="nameLong" class="form-control" name="nameLong" placeholder="расшифорвка">
+							  <span style='color:red' id='nameLongf'></span>
+					  </div>
+				</div>
+				
+	  <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+
+					  </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+<br>
+<table class="table table-hover" id="tablePatient" onclick="clickEvent(event)">
+         <thead>
+			<th>
+			</th>
+            <th>Код льготной категории</th>
+			<th>Расшифровка льготной категории</th>
+         </thead>
+
+					{{ range $key, $value := . }}
+            <tr>
+					<td>
+						<!--<form action="edit" method="POST" >-->
+							<button type="text" class="btn btn-default btn-md">
+									<input type="hidden" name="id" value="{{$value.Id}}">
+									<span class="glyphicon glyphicon-bookmark" aria-hidden="true"></span>
+							</button>
+						<!--</form>-->
+					</td>				
+					<td>{{$value.Name}}</td>
+					<td>{{$value.NameLong}}</td>
+			<tr>
+
+            </tr>
+							{{end}}
+</table>
+</div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){
+		//подпишемся на событие click элемента, имеющего id="#launch-modal"
+		$('#launch-modal').click(function() {
+				//активируем контент, имеющий id="myModal", как модальное окно 
+				$('#myModal').modal({
+						//установим модальному окну следующие параметры:
+						backdrop: 'static',
+						keyboard: true
+				});
+		});
+
+    var inputnameLong = document.getElementById('nameLong');
+    inputnameLong['oninput' in inputnameLong ? 'oninput' : 'onpropertychange'] = function() {
+        var str = this.value,
+            reg =/[^-а-яё\d\s]/g,
+            regUp =/(^|\s)(\S)/g;
+        str = str.toLowerCase().replace(reg, '');
+        str = str.replace(regUp, function g(a, b, c)
+        {
+            return b + c.toUpperCase()
+        });
+        this.value = str ;
+    };
+    var inputname = document.getElementById('name');
+    inputname['oninput' in inputname ? 'oninput' : 'onpropertychange'] = function() {
+        var str = this.value,
+            reg =/[^-а-яё\d\s]/g,
+            regUp =/(^|\s)(\S)/g;
+        str = str.toLowerCase().replace(reg, '');
+        str = str.replace(regUp, function g(a, b, c)
+        {
+            return b + c.toUpperCase()
+        });
+        this.value = str.toUpperCase() ;
+    };
+});
+
+function call() {
+    var name=document.forms["formx"]["name"].value;
+    var nameLong=document.forms["formx"]["nameLong"].value;
+    if(name.length==0){
+        document.getElementById("namef").innerHTML="*данное поле обязательно к заполнению";
+        return false;
+    }
+    if(nameLong.length==0){
+        document.getElementById("nameLongf").innerHTML="*данное поле обязательно к заполнению";
+        return false;
+    }
+
+		var msg = $('#formx').serialize();
+		$.ajax({
+				type: 'POST',
+				url:  'addlgotcat',
+				data: msg,
+				success: function(data) {
+						$('#result').html(data);
+						location.reload();
+				},
+				error: function(xhr, str) {
+						alert('Возникла ошибка: ' +xhr.resposeCode);
+				}
+		});
+}
+</script>

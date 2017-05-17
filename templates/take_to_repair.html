@@ -1,0 +1,559 @@
+<link rel="stylesheet" type="text/css" href="/assets/css/custom/add_patient.css">
+<script src="/assets/js/alertify.min.js"></script>
+<link rel="stylesheet" href="/assets/css/alertify.core.css" />
+<link rel="stylesheet" href="/assets/css/alertify.bootstrap.css" />
+<!-- template for the modal component -->
+<!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/printThis/1.9.0/printThis.min.js"></script> -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.suggestions/17.2/js/jquery.suggestions.min.js"></script>
+<script src="/assets/js/custom/jquery.priceformat.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.maskedinput/1.4.1/jquery.maskedinput.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.2.6/vue.min.js" charset="UTF-8"></script>
+
+
+<script type="text/x-template" id="crumb-up">
+    <ul class="breadcrumb" style="margin-bottom: 0px;">
+        <li><a href="take_to_repair">Главная</a> <span class="divider">/</span></li>
+        <!-- <li><a href="#">Справочники</a></li> -->
+        <!-- <li class="active"> Пациенты в очереди </li> -->
+        <slot name="li"></slot>
+    </ul>
+</script>
+
+<script type="text/x-template" id="modal-template-call">
+    <transition name="modal">
+        <div class="modal-mask" transition="modal">
+            <div class="modal-wrapper">
+                <div class="modal-container-700px">
+                    <div class="modal-header">
+                        <slot name="header">
+                        </slot>
+                    </div>
+                    <div class="modal-body" v-for="(item, $index) in items">
+                        <slot name="body">
+                            <div class="row">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">Иформация о пациенте</div>
+                                    <div class="panel-body">
+                                        <b>Ф.И.О</b> : {item.FullName} <br />
+                                        <b>Дата рождения:</b> {item.Datebirth} <br />
+                                        <b>Домашний адрес:</b> {item.Homeadres} <br />
+                                        <b>Льготная категория:</b> {item.Lgotcat} <br />
+                                        <b>Льготная категория:</b> {item.DateRecord} <br />
+                                        <b>Номер очереди</b>: <span style='color:#3e8f3e' id='id_patient'> {item.Id}</span> <br />
+                                        <b>Номер телефона:</b> {item.Phone}
+                                    </div>
+                                </div>
+                                <div class="col-xs-2 col-md-4">
+                                    <span for=date_call>Дата приглашения на прием</span>
+                                    <input type="date" v-model="date" class="form-control" id="date_call" name="date_call" value="">
+                                </div>
+                                <div class="col-xs-2 col-xs-offset-6">
+                                    <label class="checkbox">
+									<input type="checkbox" v-model="patient_refuse"> Отказался от лечения
+								</label>
+                                </div>
+                                <div class="col-xs-18 col-sm-12 col-md-12">
+                                    <textarea type="text" v-bind="comment" id="note" class="form-control" name="note" placeholder="Примечание" value="" rows="7">{item.Comment}</textarea>
+                                </div>
+                        </slot>
+                        </div>
+
+                        <div class="modal-footer">
+                            <slot name="footer">
+                                <button class="btn btn-default" @click="$emit('close') ">
+								Закрыть
+							</button>
+                                <button class="btn btn-primary" @click="add_call()">
+								Добавить
+							</button>
+                            </slot>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </transition>
+</script>
+
+<script type="text/x-template" id="modal-template-profile">
+    <transition name="modal">
+        <div class="modal-mask" transition="modal">
+            <div class="modal-wrapper">
+                <div class="modal-container-700px">
+                    <div class="modal-header">
+                        <slot name="header">
+                        </slot>
+                    </div>
+                    <div class="modal-body" v-for="(item, $index) in items">
+                        <slot name="body">
+                            <div class="row">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">Иформация о пациенте</div>
+                                    <div class="panel-body">
+                                        <b>Ф.И.О</b> : {item.FullName} <br />
+                                        <b>Дата рождения:</b> {item.Datebirth} <br />
+                                        <b>Домашний адрес:</b> {item.Homeadres} <br />
+										<b>Номер паспорта:</b>	<br/>
+                                        <b>Льготная категория:</b> {item.Lgotcat} <br />
+                                        <b>Льготная категория:</b> {item.DateRecord} <br />
+                                        <b>Номер очереди</b>: <span style='color:#3e8f3e' id='id_patient'> {item.Id}</span> <br />
+                                        <b>Номер телефона:</b> {item.Phone}
+                                    </div>
+                                </div>
+                                <div class="col-xs-18 col-sm-12 col-md-12">
+                                    <textarea type="text" v-bind="comment" id="note" class="form-control" name="note" placeholder="Примечание" value="" rows="7">{item.Comment}</textarea>
+                                </div>
+                        </slot>
+                        </div>
+
+                        <div class="modal-footer">
+                            <slot name="footer">
+                                <button class="btn btn-default" @click="$emit('close') ">
+								Закрыть
+							</button>
+                            </slot>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </transition>
+</script>
+
+
+<script type="text/x-template" id="modal-template-nar">
+    		<transition name="modal">
+    <div class="modal-mask" transition="modal">
+        <div class="modal-wrapper">
+            <div class="modal-container-1100px">
+                <div class="modal-header">
+                    <slot name="header">
+                    </slot>
+                    <!-- <button slot="header" v-on:click="add()" class="button btn btn-primary glyphicon glyphicon-plus-sign"></button> -->
+                </div>
+                <div class="modal-body">
+                    <slot name="body">
+                        <div class="row">
+                            <table class="table table-hover" id="tablePatient">
+                                <thead>
+                                    <tr>
+                                        <th style="display:none;"></th>
+                                        <th style="display:none;"></th>
+                                        <th>Наряд</th>
+                                        <th>Дата открытия</th>
+                                        <th>ФИО врач</th>
+                                        <th>Дата нач. производства</th>
+                                        <th>ФИО техника</th>
+                                        <th>Дата закрытия</th>
+                                        <th>Сумма</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(item, $index) in items">
+                                        <template v-if="item !== edit">
+												<td style="display:none;">{item.id}</td>
+												<td>{item.number_nar}</td>
+												<td>{item.date_open_nar}</td>
+												<td>{item.vrach_ortoped}</td>
+												<td>{item.date_start_production}</td>
+												<td>{item.vrach_technic}</td>
+												<td>{item.date_close_nar}</td>
+												<td>{item.sum}</td>
+												<td>
+													<a v-on:click="editItem(item, $index)" href="#" v-if="buttonAddRow == true" title="редактировать">
+														<span class=" glyphicon glyphicon-pencil" aria-hidden="true"></span>
+													</a>
+												</td>
+											</template>
+                                        <template v-if="item == edit">
+												<td  style="display:none;"><input disabled="disabled" class="form-control" v-model="edit.id" maxlength="10"></td>
+													<td v-if="edit.number_nar == ''"><input class="form-control" v-model="edit_number_nar" maxlength="10"></td>
+													<td v-else><input disabled="disabled" class="form-control" v-model="edit.number_nar" maxlength="10"></td>
+
+													</td>
+													<td v-if="edit.date_open_nar == ''"><input type="date" class="form-control" v-model="edit_date_open_nar" maxlength="10"></td>
+													<td v-else><input disabled="disabled" class="form-control" v-model="edit.date_open_nar" maxlength="10"></td>
+
+												<template>
+													<td v-if="edit.vrach_ortoped == ''" style="width: auto">
+														<select v-model="selectedVrachOrotped" class="form-control">
+															<option disabled value="">Выберите врача</option>
+															<option v-for="(itemFioVrach, $index) in itemsFioVrach" v-bind:selected="itemFioVrach.value">
+																{itemFioVrach.Fam} {itemFioVrach.Name} {itemFioVrach.Lastname}
+															</option>
+														</select>
+													</td>
+													<td v-else><input  disabled="disabled" class="form-control" v-model="edit_vrach_ortoped" maxlength="10"></td>
+												</template>
+                                        <td v-if="edit.date_start_production == ''"><input type="date" class="form-control" v-model="edit_date_start_production" maxlength="10"></td>
+                                        <td v-else><input disabled="disabled" class="form-control" v-model="edit.date_start_production" maxlength="10"></td>
+                                        <template>
+													<td v-if="edit.vrach_technic == ''" style="width: auto">
+														<select v-model="selectedVrachTechnic" class="form-control">
+															<option disabled value="">Выберите врача</option>
+															<option v-for="(itemFioVrachTechnic, $index) in itemsFioVrachTechnic" v-bind:selected="itemFioVrachTechnic.value">
+																{itemFioVrachTechnic.Fam} {itemFioVrachTechnic.Name} {itemFioVrachTechnic.Lastname}
+															</option>
+														</select>
+													</td>
+													<td v-else><input  disabled="disabled" class="form-control" v-model="edit_vrach_technic" maxlength="10"></td>
+												</template>
+                                        <td v-if="edit.date_close_nar == ''"><input type="date" class="form-control" v-model="edit_date_close_nar" maxlength="10"></td>
+                                        <td v-else><input disabled="disabled" class="form-control" v-model="edit.date_close_nar" maxlength="10"></td>
+                                        <td v-if="edit.sum == ''"><input class="born form-control" id="sumedit" name="sumedit" type="text" v-model="edit_sum" maxlength="50"></td>
+                                        <td v-else><input disabled="disabled" class="born form-control" id="sumedit" name="sumedit" type="text" v-model="edit.sum" maxlength="50"></td>
+                                        <td>
+                                            <a v-on:click="successEdit(item, $index, $event)" href="#" title="Применить">
+                                                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                            </a>
+                                            <a v-on:click="cancelEdit(item, $index, $event)" href="#" title="Отмена">
+                                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                            </a>
+                                        </td>
+                                        </template>
+                                    </tr>
+                                    <template v-if="addItemRow == true">
+											<tr>
+												<td><input class="form-control" v-model="number_nar"  maxlength="10">
+                                                    <span v-if="number_nar == ''" for="suml" style="color: red; font-size: 1em;">*</span>
+                                                    <span v-else style="color: green; font-size: 1em;">&#10004;</span>
+                                                </td>
+												<td><input type="date" class="form-control" v-model="date_open_nar" maxlength="10">
+                                                    <span v-if="date_open_nar == ''" for="date" style="color: red; font-size: 1em;">*</span>
+                                                    <span v-else style="color: green; font-size: 1em;">&#10004;</span>
+                                                </td>
+												<template>
+													<td style="width: auto">
+														<select v-model="selectedVrachOrotped" class="form-control">
+															<option disabled value="">Выберите врача</option>
+															<option v-for="(itemFioVrach, $index) in itemsFioVrach" v-bind:selected="itemFioVrach.value">
+																{itemFioVrach.Fam} {itemFioVrach.Name} {itemFioVrach.Lastname}
+															</option>
+														</select>
+                                                        <span v-if="selectedVrachOrotped == ''" style="color: red; font-size: 1em;">*</span>
+                                                        <span v-else style="color: green; font-size: 1em;">&#10004;</span>
+													</td>
+												</template>
+                                    <td><input style="width: auto" class="form-control" type="date" v-model="date_start_production" maxlength="10"></td>
+                                    <td>
+                                        <template>
+												<td style="width: auto">
+													<select v-model="selectedVrachTechnic" class="form-control">
+														<option disabled value="">Выберите врача</option>
+														<option v-for="(itemFioVrachTechnic, $index) in itemsFioVrachTechnic" v-bind:selected="itemFioVrachTechnic.value">
+															{itemFioVrachTechnic.Fam} {itemFioVrachTechnic.Name} {itemFioVrachTechnic.Lastname}
+														</option>
+													</select>
+												</td>
+										</template>
+                                    </td>
+                                    <td><input style="width: auto" class="form-control" type="date" v-model="date_close_nar" maxlength="10"></td>
+                                    <td><input class="form-control" type="text" id="sum1" v-on:blur="inputValueFilterSum" name="sum1" v-model="sum" maxlength="50">
+                                        <span v-if="sum == '' || sum == '0'" for="suml" style="color: red; font-size: 1em;">*</span>
+                                        <span v-else style="color: green; font-size: 1em;">&#10004;</span>
+                                    </td>
+                                    <td>
+                                        <template v-if="number_nar !== '' || date_open_nar !== '' || selectedVrachOrotped !== '' || sum !== '' || sum !== '0' ">
+                                        <a  v-on:click="successAddNar()" href="#" title="Добавить наряд">
+                                            <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                        </a>
+                                        </template>
+                                        <a v-on:click="cancelAddItemRowSelected()" href="#" title="Отмена">
+                                            <span class="glyphicon glyphicon-remove"></span>
+                                        </a>
+                                    </td>
+                                    </tr>
+                                    </template>
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>Cумма всех нарядов:</td>
+                                        <td>{sum_all}</td>
+
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                            <div class="col-md-2" v-if="buttonAddRow == true">
+                                <button class="button btn btn-primary btn-mg form-control" v-on:click="addItem()" href="#" title="Добавить">
+										Добавить наряд
+									</button>
+                            </div>
+                    </slot>
+                    </div>
+
+                    <div class="modal-footer">
+                        <slot name="footer">
+                            <button class="btn btn-default" @click="$emit('close') ">
+								Закрыть
+							</button>
+                        </slot>
+                    </div>
+                </div>
+            </div>
+        </div>
+        		</transition>
+</script>
+
+
+<script type="text/x-template" id="modal-template">
+    		<transition name="modal">
+    <div class="modal-mask" transition="modal">
+        <div class="modal-wrapper">
+            <div class="modal-container-700px">
+
+                <div class="modal-header">
+                    <slot name="header">
+
+
+                    </slot>
+                </div>
+                <div class="modal-body">
+                    <slot name="body">
+                        <div class="row">
+
+                            <div class="col-xs-6 col-sm-4 col-md-4">
+                                <input type="text" v-model.trim="fam" id="fam" onkeyup="this.value=this.value.replace(/\s+/gi,'')" v-on:keypress="inputValueFilter('fam')" class="form-control" name="fam" placeholder="Фамилия" value="">
+                                <span style='color:red' id='famf'></span>
+                            </div>
+                            <div class="col-xs-6 col-sm-4 col-md-4">
+                                <input type="text" v-model.trim="name" id="name" onkeyup="this.value=this.value.replace(/\s+/gi,'')" v-on:keypress="inputValueFilter('name')" class="form-control" name="name" placeholder="Имя" value="">
+                            </div>
+                            <div class="col-xs-6 col-sm-4 col-md-4">
+                                <input type="text" v-model.trim="lastname" id="lastname" onkeyup="this.value=this.value.replace(/\s+/gi,'')" v-on:keypress="inputValueFilter('lastname')" class="form-control" name="lastname" placeholder="Отчество" value="">
+                            </div>
+                        </div>
+                        <div class="row">
+							<div class="col-md-2" style="margin-top:20px;width: 111px;padding-right: 0px;">
+							Дата рождения:
+							</div>
+                            <div class="col-xs-9 col-sm-6 col-md-6" style="padding-left: 0px;width:138px;">
+                                <input type="date" style="padding-left: 3px;padding-right: 0px;" v-model="date_birth" id="date_birth" class="form-control" name="date_birth" placeholder="Дата рождения" value="">
+                            </div>
+							<div class="col-md-2" style="margin-top:20px;width: 118px;padding-right: 0px;margin-left:90px;padding-left: 0px;">
+							Номер паспорта:
+							</div>
+							<div class="col-xs-6 col-sm-4 col-md-4">
+                                <input type="text" v-model.trim="number_pasport" v-on:click="inputValueFilterPasport" v-on:keyup.tab="inputValueFilterPasport" id="number_pasport" class="form-control" name="thepost" placeholder="Номер паспорта" value="">
+                            </div>
+							
+<!-- 							<div class="col-xs-6 col-sm-4 col-md-4" style="width:180px;margin-left:0px;">
+                                <select name="select_name" style="width:166;" v-model="selected_lgot_cat" class="form-control">
+									<option disabled value="">Льготная категория</option>
+									<option v-for="(item, $index) in items_lgot_cat" v-bind:selected="item.value" size="5">
+									{item.Name}
+									</option>
+								</select>
+                            </div> -->
+						</div>
+
+						<div class="row">
+							<div class="col-xs-6 col-sm-4 col-md-4">
+                                <input type="text" v-model.trim="number_ud" id="number_ud" class="form-control" name="thepost" placeholder="Номер удостоверения" value="">
+                            </div>
+							<div class="col-xs-6 col-sm-4 col-md-4" style="width:180px;margin-left:17px;">
+                                <select name="select_name" style="width:166;" v-model="selected_lgot_cat" class="form-control">
+									<option disabled value="">Льготная категория</option>
+									<option v-for="(item, $index) in items_lgot_cat" v-bind:selected="item.value" size="5">
+									{item.Name}
+									</option>
+								</select>
+                            </div>
+							<div class="col-md-2" style="margin-top:20px;width: 118px;padding-right: 0px;margin-left:17px;padding-left: 0px;">
+							Номер телефона:
+							</div>
+							<div class="col-xs-5 col-sm-4 col-md-4" style="width:119px;padding-left: 0px;padding-right: 0px;">
+                                <input type="text" style="padding-left: 2px;padding-right: 2px;" v-on:click="inputValueFilterPhone" v-on:keyup.tab="inputValueFilterPhone" v-model="number_phone" id="phone" name="phone" class="form-control" placeholder="8 (ххх) ххх-хххх" value="">
+                            </div>
+							
+						</div>
+                        <!-- <div class="row">
+						    <div class="col-xs-6 col-sm-4 col-md-4">
+                                <input type="text" v-model.trim="number_ud" id="number_ud" class="form-control" name="thepost" placeholder="Номер удостоверения" value="">
+                            </div>
+							<div class="col-md-2" style="margin-top:20px;width: 118px;padding-right: 0px;margin-left:12px;padding-left: 0px;">
+							Номер паспорта:
+							</div>
+							<div class="col-xs-6 col-sm-4 col-md-4">
+                                <input type="text" v-model.trim="number_ud" id="number_ud" class="form-control" name="thepost" placeholder="Номер удостоверения" value="">
+                            </div>
+
+                        </div> -->
+						
+						<div class="row">
+                            <div class="col-xs-18 col-sm-12 col-md-12">
+                                <link href="https://cdn.jsdelivr.net/jquery.suggestions/17.2/css/suggestions.css" type="text/css" rel="stylesheet" />
+                                <input type="text" v-on:click="inputValueFilterAdres" v-on:keyup.tab="inputValueFilterAdres" v-model="home_adres" id="homeAdres" class="form-control" name="home_adres" placeholder="Домашний адрес">
+                            </div>
+							</div>
+<!--                         <div class="row">
+                            <div class="col-xs-6 col-sm-4 col-md-4">
+                                <input type="text" v-model.trim="number_ud" id="number_ud" class="form-control" name="thepost" placeholder="Номер удостоверения" value="">
+                            </div>
+                            <div class="col-xs-6 col-sm-4 col-md-4">
+                                <select name="select_name" v-model="selected_lgot_cat" class="form-control">
+									<option disabled value="">Льготная категория</option>
+									<option v-for="(item, $index) in items_lgot_cat" v-bind:selected="item.value" size="5">
+									{item.Name}
+									</option>
+								</select>
+                            </div>
+                        </div> -->
+
+                        <div class="row">
+                            <div class="col-xs-18 col-sm-12 col-md-12">
+                                <textarea type="text" v-model="note" id="note" class="form-control" name="note" placeholder="Примечание" value=""></textarea>
+                            </div>
+                        </div>
+						<div class="row">
+							<div class="col-md-2" style="margin-top:17px;padding-right: 0px;width:95px;">Пользователь:
+							</div>
+							<div class="col-md-2">
+								<input type="text" style="border:0;padding-left: 0px;background-color: #fff;" disabled="disabled" v-model="selected_fio_reg" class="form-control"  value="">
+							</div>
+						</div>
+                    </slot>
+                </div>
+
+                <div class="modal-footer">
+                    <slot name="footer">
+                        <button class="btn btn-default" @click="$emit('close') ">
+									Закрыть
+								</button>
+                        <button v-if=" fam == '' || name == '' || lastname == '' || date_birth == '' || number_phone == '' || home_adres == '' || number_ud == '' || selected_lgot_cat == '' || selected_fio_reg == ''" class="btn btn-default" readonly>
+									Добавить
+								</button>
+                        <button v-else class="btn btn-primary" @click="add_patient()">
+									Добавить
+								</button>
+                    </slot>
+                </div>
+            </div>
+        </div>
+    </div>
+    		</transition>
+</script>
+
+<!-- Выравнивание td в таблице-->
+<style>
+    .col1 {
+        padding: 5px;
+        /* Поля в ячейках */
+        vertical-align: top;
+        /* Выравнивание по верхнему краю ячеек */
+        text-align: center;
+    }
+</style>
+
+<!-- component template -->
+<script type="text/x-template" id="grid-template">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <td style="width: 10px"></td>
+                <th class="col1" style="width: 20px" v-for="key in columns" @click="sortBy(key)" :class="{ active: sortKey == key }">
+                    { translate[key] | capitalize }
+                    <span class="arrow" :class="sortOrders[key] > 0 ? 'asc' : 'dsc'">
+          </span>
+                </th>
+                <td v-if="selected_status == 'Пациенты в очереди'" class="col1" style="width: 10px"><b>Пригласить</b></td>
+                <td v-if="selected_status == 'Пациенты на лечении'" class="col1" style="width: 10px"><b>Наряды</b></td>
+                <td v-if="selected_status == 'Приглашенные пациенты'" class="col1" style="width: 20px"><b>Прибыл на лечение</b></td>
+                <td v-if="selected_status == 'Пациенты в очереди'" class="col1" style="width: 10px"><b>Печать</b></td>
+                <td v-if="selected_status == 'Пациенты на лечении'" class="col1" style="width: 10px"><b>Пролечен</b></td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="entry in filteredData">
+                <td class="col1" style="width: 10px">
+                    <a href="#" v-on:click="profile_patient(entry.Id)" class="glyphicon glyphicon-user" aria-hidden="true"></a>
+                </td>
+				<!-- <td class="col1" style="width: 10px">
+                    <a href="#" v-on:click="editItem(entry.Id)" class="glyphicon glyphicon-user" aria-hidden="true"></a>
+                </td> -->
+                <td class="col1" v-for="key in columns">
+                    {entry[key]}
+                </td>
+                <td v-if="selected_status == 'Пациенты в очереди'" style="width: 10px" class="col1">
+                    <a href="#" v-on:click="call_patient(entry.Id)" class="glyphicon glyphicon-earphone col1" aria-hidden="true"></a>
+                </td>
+                <td v-if="selected_status == 'Пациенты на лечении'" style="width: 10px" class="col1">
+                    <a href="#" v-on:click="add_nar_patient(entry)" class="glyphicon glyphicon-paperclip" aria-hidden="true"></a>
+                </td>
+                <td v-if="selected_status == 'Приглашенные пациенты'" v-on:click="move_patient_treatment(entry)" style="width: 20px" class="col1">
+                    <a href="#" class="glyphicon glyphicon-share-alt" aria-hidden="true"></a>
+                </td>
+                <td v-if="selected_status == 'Пациенты в очереди'" style="width: 10px" v-on:click="print(entry.Id)" class="col1">
+                    <a href="#" class="glyphicon glyphicon-print" aria-hidden="true"></a>
+                </td>
+                <td v-if="selected_status == 'Пациенты на лечении'" style="width: 10px" class="col1">
+                    <a href="#" v-on:click="patient_complite(entry)" class="glyphicon glyphicon-share-alt col1" aria-hidden="true"></a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</script>
+
+
+<script type="text/x-template" id="selected-status-patient">
+    <select v-model="selected_status" class="form-control">
+		<option>Пациенты в очереди</option>
+		<option>Приглашенные пациенты</option>
+		<option>Пациенты на лечении</option>
+ </select>
+</script>
+
+<!-- demo root element -->
+<div id="demo">
+
+    <crumb-up>
+        <li class="active" slot="li">
+            {selected_status}
+        </li>
+    </crumb-up>
+
+    <modal v-if="showModal" @close="showModal = false">
+        <h3 slot="header">Добавить пациента</h3>
+    </modal>
+    <modal-nar v-if="showModalnar" @close="showModalnar = false">
+        <!--<h3 slot="header">Наряды</h3>-->
+        <h3 slot="header">Очередь: {currentId}/{full_name} </h3>
+    </modal-nar>
+    <modal-call v-if="showModalCall" @close="showModalCall = false">
+        <h3 slot="header">Пригласить пациента</h3>
+    </modal-call>
+	<modal-profile v-if="showModalProfile" @close="showModalProfile = false">
+		<h3 slot="header">Информация о пациенте</h3>
+	</modal-profile>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-3 col-md-2 col-lg-2">
+                <button class="form-control btn btn-primary" style="color: #fff; background-color: #428bca; border-color: #357ebd;" onmouseover="this.style.backgroundColor='#14558e';" onmouseout="this.style.backgroundColor='#428bca';" id="show-modal" @click="showModal = true">Добавить пациента</button>
+                <!-- use the modal component, pass in the prop -->
+            </div>
+            <div class="col-xs-3 col-md-2 col-lg-2">
+                <selected-status-patient></selected-status-patient>
+            </div>
+            <div class="col-xs-3 col-xs-offset-4 col-lg-2">
+			<!-- col-xs-offset-4 -->
+                <form id="search">
+                    <input name="query" class="form-group form-control"  v-model="searchQuery" placeholder="поиск">
+                </form>
+            </div>
+            <div class="col-xs-13 col-md-11">
+                <demo-grid :selected_status.sync="selected_status" :data="gridData" :columns="gridColumns" :filter-key="searchQuery">
+                </demo-grid>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="/assets/vuejs/vue2.js" charset="UTF-8"></script>
+
+<!--<script type="text/javascript" src="https://unpkg.com/vue@2.3.0" charset="UTF-8"></script>-->
+<script src="https://cdn.jsdelivr.net/vue.resource/1.2.1/vue-resource.min.js"></script>
+<script type="text/javascript" src="/assets/js/custom/take_to_repair.js" charset="UTF-8"></script>

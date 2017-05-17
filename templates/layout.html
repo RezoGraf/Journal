@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ГАУЗ КО КГКСП №3</title>
+    <!-- Bootstrap -->
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+
+<style>
+.container-fix{
+windth:50%
+}
+</style>
+
+
+  <body>
+  <script src="https://cdn.jsdelivr.net/vue.resource/1.2.1/vue-resource.min.js"></script>
+    <script src="/assets/js/jquery-3.1.1.min.js"></script>
+    <script src="/assets/js/bootstrap.min.js"></script>
+    <script src="/assets/vuejs/vue2.js"></script>
+<div class="container container-fix">
+<nav id="navbar" class="navbar navbar-default" role="navigation">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+      <!--<a class="navbar-brand" href="take_to_repair">Главная</a>-->
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+		<!--<li><a href="#">Добавить пациента</a></li>-->
+        <!--<li class="dropdown">-->
+          <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown">Пациенты <b class="caret"></b></a>-->
+          <!--<ul class="dropdown-menu">-->
+            <!--<li><a href="take_to_repair_treatment">На лечение</a></li>-->
+            <!--<li><a href="take_to_repair">В очереди</a></li>-->
+          <!--</ul>-->
+        <li><a href="reports">Отчеты</a></li>
+        <li v-if="nameReg == 'Администратор'" class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Справочники <b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            <li><a href="catalog_thepost">Должностей</a></li>
+            <li><a href="catalog_vrach">ФИО врача</a></li>
+            <li><a href="catalog_med_reg">ФИО регистратор</a></li>
+            <li><a href="catalog_lgot_cat">Льготные категории</a></li>
+          </ul>
+        </li>
+	  </ul>
+
+	  <form class="navbar-form navbar-right" role="search">
+                {nameReg}
+			  <button v-on:click="logout()" type="button" class="btn btn-default">Выйти</button>
+			</form>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+	{{ yield }}
+
+  </body>
+</html>
+
+
+
+<script>
+    var navBar = new Vue({
+        delimiters: ['{', '}'],
+        el: '#navbar',
+        data: {
+            nameReg: null
+        },
+        mounted: function() {
+            this.setDefaultItems();
+        },
+        methods: {
+            setDefaultItems: function () {
+                this.$http.get('/current_med_reg').then(data => {
+                    this.nameReg = JSON.parse(data.body).trim();
+                console.log(data.body)
+            });
+
+            },
+            logout: function () {
+//            var cookies = document.cookie.split(";");
+//            for (var i = 0; i < cookies.length; i++)
+//                eraseCookie(cookies[i].split("=")[0]);
+                $.ajax({
+                    url: '/logout',
+                    type: 'post'
+                }).done(function(data, status) {
+                    if (status == "success") {
+                        window.location.href = "/";
+                    } else {
+                        alertify.error('Произошла ошибка на сервере');
+                    }
+                })
+            }
+        }
+
+
+    })
+
+</script>
+

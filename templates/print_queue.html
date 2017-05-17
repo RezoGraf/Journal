@@ -1,0 +1,44 @@
+<style>
+    h1 {
+        font-family: Verdana, Arial, Helvetica, sans-serif; /* Рубленый шрифт заголовка */
+    }
+    p {
+        font-family: 'Times New Roman', Times, serif; /* Шрифт с засечками */
+        font-size: 200%;
+    }
+    @page {
+        margin: 0; /*Отключает колонтитулы*/
+    }
+
+</style>
+
+<div class="container">
+		<div class="row">
+				<div class="col-xs-10" >
+                    <h2>ГАУЗ КО КГКСП №3<br>
+                        пр. Шахтеров 47, Ортопедическое отделение
+                    </h2>
+                    <p>
+                        телефон регистратуры: 64-22-42<br>
+                 {{ range $key, $value := . }}
+                    <b>Уникальный идентификатор пациента</b>: {{$value.Id}}<br>
+	                <b>Ф.И.О</b> : {{$value.Fam}} {{$value.Name}} {{$value.Lastname}}<br>
+	                <b>Дата рождения:</b> {{$value.Datebirth}} <br>
+                    <b>Дата записи:</b> {{$value.DateRecord}}<br>
+                    <b>Номер удостоверения:</b> {{$value.Numberud}}<br>
+                     <b>Телефон для связи: </b> {{$value.Phone}}<br>
+                    <b>Тип льготы:</b> {{$value.Lgotcat}}<br>
+                        <i>*Если заметили ошибку в номере телефона для связи - обязательно сообщите в регистратуру, иначе Вас не смогут вызывать на приём.</i>
+                    </p>
+
+                {{end}}
+                </div>
+        </div>
+    </div>
+
+<script type="text/javascript">
+    print()
+    document.location.href = "take_to_repair";
+</script>
+
+

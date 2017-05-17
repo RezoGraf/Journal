@@ -1,0 +1,21 @@
+<h4>Справочник подразделений</h4>
+<br>
+<div class="row">
+		<div class="col-xs-4 col-md3">
+				<form action="office_directory" method="post">
+						<b>Структурное подразделение</b>
+						<input tipe="text" class="form-control" placeholder="отделение">
+						<br>
+						<b>Подчиняется</b>
+						<select class="form-control" id="sel1">
+						<option>ПК</option>
+						<option>АПТК</option>
+						<option>Принтер</option>
+						<option>МФУ</option>
+						<option>Монитор</option>
+				</select>
+				<br />
+				<input type="button" class="btn btn-primary btn-block" value="Добавить" onclick="validForm(this.form)"></input>
+				</form>
+		</div>
+</div>

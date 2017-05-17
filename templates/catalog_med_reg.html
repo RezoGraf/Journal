@@ -1,0 +1,96 @@
+<!-- Button trigger modal -->
+<input id="launch-modal" type="button" class="btn btn-primary" value="Добавить запись">
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" backdrop="static">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Добавить запись</h4>
+      </div>
+      <div class="modal-body">
+			  <form role="form" id="formx" action="javascript:void(null);" onsubmit="call()" method="post" enctype="application/x-www-from-urlencoded">
+					  <div class="form-group">
+							  <label for="fam">Фамилия</label>
+							  <input type="text" id="fam" class="form-control" name="fam" placeholder="Фамилия" value="">
+					  </div>
+					  <div class="form-group">
+							  <label type="name">Имя</label>
+							  <input type="text" id="name" class="form-control" name="name" placeholder="Имя">
+					  </div>
+					  <div class="form-group">
+							  <label for="lastName">Отчество</label>
+							  <input type="text" id="lastName" class="form-control" name="lastname" placeholder="Отчество">
+					  </div>
+				</div>
+				
+	  <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+
+					  </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+<br>
+<table class="table table-hover" id="tablePatient" onclick="clickEvent(event)">
+         <thead>
+			<td>
+			</td>
+            <td>Фамилия</td>
+            <td>Имя</td>
+            <td>Отчество</td>
+         </thead>
+
+					{{ range $key, $value := . }}
+            <tr>
+					<td>
+						<form action="edit" method="POST" >
+							<button type="text" class="btn btn-default btn-md">
+									<input type="hidden" name="id" value="{{$value.Id}}">
+									<span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+							</button>
+						</form>
+					</td>				
+					<td>{{$value.Fam}}</td>
+					<td>{{$value.Name}}</td>
+					<td>{{$value.Lastname}}</td>
+			<tr>
+
+            </tr>
+							{{end}}
+</table>
+</div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){
+		//подпишемся на событие click элемента, имеющего id="#launch-modal"
+		$('#launch-modal').click(function() {
+				//активируем контент, имеющий id="myModal", как модальное окно 
+				$('#myModal').modal({
+						//установим модальному окну следующие параметры:
+						backdrop: 'static',
+						keyboard: true
+				});
+		}); 
+});
+
+function call() {
+		var msg = $('#formx').serialize();
+		$.ajax({
+				type: 'POST',
+				url:  'addmedreg',
+				data: msg,
+				success: function(data) {
+						$('#result').html(data);
+						location.reload();
+				},
+				error: function(xhr, str) {
+						alert('Возникла ошибка: ' +xhr.resposeCode);
+				}
+		});
+}
+</script>

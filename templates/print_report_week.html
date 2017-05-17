@@ -1,0 +1,30 @@
+<div class="container">
+    <div class="row">
+        <div class="col-xs-15">
+            <table class="table table-bordered">
+                <thead>
+                <th>№</th>
+                <th>ФИО</th>
+                <th>Дата рождения</th>
+                <th>Дата закрытия</th>
+                </thead>
+                {{ range $key, $value := . }}
+                <td>{{$value.Id}}</td>
+                <td>{{$value.Fam}} {{$value.Name}} {{$value.Lastname}} </td>
+                <td>{{$value.Datebirth}}</td>
+                <td>{{$value.DateLastEdit}}</td>
+                <tr height="50">
+                    {{end}}
+                </tr>
+            </table>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    print()
+    document.location.href = "reportWeek";
+</script>
+
+

@@ -1,0 +1,118 @@
+.modal-mask {
+  position: fixed;
+  z-index: 9998;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, .5);
+  display: table;
+  transition: opacity .3s ease;
+}
+
+.modal-wrapper {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.modal-container-700px {
+  width: 700px;
+  margin: auto;
+  padding: inherit;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, .33);
+  transition: all .3s ease;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.modal-container {
+  width: 300px;
+  margin: auto;
+  padding: inherit;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, .33);
+  transition: all .3s ease;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.modal-header h3 {
+  text-align: center;
+  margin-top: 0;
+  color: #428bca;
+}
+
+.modal-body {
+  margin: 0px 0;
+}
+
+.modal-default-button {
+  float: inherit;
+}
+
+.col-lg-1, .col-lg-10, .col-lg-11, .col-lg-12, .col-lg-2, .col-lg-3, .col-lg-4, .col-lg-5, .col-lg-6, .col-lg-7, .col-lg-8, .col-lg-9, .col-md-1, .col-md-10, .col-md-11, .col-md-12, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-7, .col-md-8, .col-md-9, .col-sm-1, .col-sm-10, .col-sm-11, .col-sm-12, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-xs-1, .col-xs-10, .col-xs-11, .col-xs-12, .col-xs-2, .col-xs-3, .col-xs-4, .col-xs-5, .col-xs-6, .col-xs-7, .col-xs-8, .col-xs-9 {
+    position: relative;
+    min-height: 1px;
+    padding-right: 6px;
+    padding-left: 6px;
+}
+
+textarea.form-control {
+    height: 68;
+
+	
+}
+
+.form-control {
+    display: block;
+    width: 100%;
+    height: 34px;
+    padding: 3px 6px;
+	padding-right: 10;
+	padding-left: 10;
+	margin-top:10px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #555;
+    background-color: #fff;
+    background-image: none;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+}
+
+/*
+ * The following styles are auto-applied to elements with
+ * transition="modal" when their visibility is toggled
+ * by Vue.js.
+ *
+ * You can easily play with the modal transition by editing
+ * these styles.
+ */
+
+.modal-enter {
+  opacity: 0;
+}
+
+.modal-leave-active {
+  opacity: 0;
+}
+
+.modal-enter .modal-container,
+.modal-leave-active .modal-container {
+  -webkit-transform: scale(1.1);
+  transform: scale(1.1);
+}
+
+.table>thead>tr>th, .table>tbody>tr>th, .table>tfoot>tr>th, .table>thead>tr>td, .table>tbody>tr>td, .table>tfoot>tr>td {
+    padding: 8px;
+    line-height: 1.42857143;
+    vertical-align: top;
+    border-top: 1px solid #ddd;
+}
+

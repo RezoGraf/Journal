@@ -1,0 +1,357 @@
+<!-- Add this to <head>-->
+<link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap@next/dist/css/bootstrap.min.css"/>
+<link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css"/>
+
+<script type="text/javascript" src="/assets/vuejs/vue2.js" charset="UTF-8"></script>
+<!-- <link href="/assets/css/style.css" rel="stylesheet"> -->
+<script src="https://cdn.jsdelivr.net/vue.resource/1.2.1/vue-resource.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-maskmoney/3.0.2/jquery.maskMoney.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.maskedinput/1.4.1/jquery.maskedinput.min.js"></script>
+
+<!-- Add this after vue.js -->
+<script src="//unpkg.com/babel-polyfill@latest/dist/polyfill.min.js"></script>
+<script src="//unpkg.com/tether@latest/dist/js/tether.min.js"></script>
+<script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
+<link href="/assets/css/icons.css" rel="stylesheet">
+
+
+
+
+<div id="headmenu">
+  <b-breadcrumb :items="items" />
+</div>
+<script>
+new Vue({
+  el: '#headmenu',
+  data: {
+    items: [{
+      text: 'Главная',
+      link: 'take_to_repair',
+    }, {
+      text: 'Пациенты на лечении',
+      link: 'take_to_repair_treatment',
+    }, {
+      text: 'Карточка пациента',
+      active: true
+    }]
+  }
+})
+</script>
+
+
+<div id="patientDate" class="row">
+	<template v-for="(item, $index) in items">
+		<div class="col-md-6">
+			<div id="passport">
+				<b-list-group>
+					<b-list-group-item active>Паспортная часть</b-list-group-item>
+					<b-list-group-item>
+						<b>Ф.И.О</b> : {item.Fam} {item.Name} {item.Lastname}
+					</b-list-group-item>
+					<b-list-group-item>
+						<b>Дата рождения:</b> {item.Datebirth}
+					</b-list-group-item>
+					<b-list-group-item>
+						<b>Домашний адрес:</b> {item.Homeadres}
+					</b-list-group-item>
+					<b-list-group-item>
+						<b>Номер удостоверения:</b> {item.Numberud}
+					</b-list-group-item>
+					<b-list-group-item>
+						<b>Льготная категория:</b> {item.Lgotcat}
+					</b-list-group-item>
+					<b-list-group-item>
+						<b>Номер очереди</b>: <span style='color:#3e8f3e' id='id_patient'> {item.Id}</span>
+					</b-list-group-item>
+				</b-list-group>
+			</div>
+<script>
+new Vue({
+  el: '#passport'
+})
+</script>
+<!-- 				<div class="panel panel-default col-xs-12 input-group">
+					<div class="panel-heading">Паспортная часть</div>
+						<div class="panel-body">
+							<b>Ф.И.О</b> : {item.Fam} {item.Name} {item.Lastname} <br>
+							<b>Дата рождения:</b> {item.Datebirth} <br>
+							<b>Домашний адрес:</b> {item.Homeadres}<br>
+							<b>Номер удостоверения:</b> {item.Numberud}<br>
+							<b>Льготная категория:</b> {item.Lgotcat}<br>
+							<b>Номер очереди</b>: <span style='color:#3e8f3e' id='id_patient'> {item.Id}</span><br>
+						</div>
+				</div> -->
+<!-- 			<div id="phone">
+				<b-form-input v-model="text" type="text" placeholder="№ телефона" :state="text.length?'success':'warning'" :formatter="format" lazy-formatter>
+				<input v-model="item.Phone" type="text" class="form-control" id="phone1" name="phone1" readonly>
+				</b-form-input>
+				</div> -->
+					<div class="input-group col-md-12">
+					<template v-if="item !== edit">
+					<b-input-group left="Номер телефона">
+					<slot name="right">
+            <b-input-group-addon v-if="right" v-html="right"><input v-model="item.Phone" v-on:click="inputValueFilterPhone()" type="text" class="form-control" id="phone" name="phone" value=""></b-input-group-addon>
+        </slot>
+					<input v-model="item.Phone" type="text" class="form-control" id="phone1" name="phone1" readonly>
+<!-- 					<a v-on:click="editItem(item, $index, $event)" href="#" title="редактировать">
+					<i class="sprite sprite-glyphicons-31-pencil" aria-hidden="true"></i></a> -->
+    <b-form-input></b-form-input>
+</b-input-group>
+</template>
+<template v-if="item == edit">
+					<b-input-group left="Номер телефона">
+					<slot name="right">
+            <b-input-group-addon v-if="right" v-html="right"><input v-model="item.Phone" v-on:click="inputValueFilterPhone()" type="text" class="form-control" id="phone" name="phone" value=""></b-input-group-addon>
+        </slot>
+					<input v-model="item.Phone" v-on:click="inputValueFilterPhone()" type="text" class="form-control" id="phone" name="phone" value="">
+					<a width="100px" v-on:click="successEdit(item, $index, $event)" href="#" title="Применить">
+					<i class="sprite sprite-glyphicons-31-pencil" aria-hidden="true"></i></a>
+					<a v-on:click="cancelEdit(item, $index, $event)" href="#" title="Отмена">
+					<i class="sprite sprite-glyphicons-31-pencil" aria-hidden="true"></i></a>
+    <b-form-input></b-form-input>
+</b-input-group>
+</template>
+						<!-- <template v-if="item !== edit">
+							<span class="input-group-addon1" >Номер телефона</span>
+								<input v-model="item.Phone" type="text" class="form-control" id="phone1" name="phone1" readonly>
+								
+									<span class="input-group-addon1" >
+										<a v-on:click="editItem(item, $index, $event)" href="#" title="редактировать">
+											<i class="sprite sprite-glyphicons-31-pencil" aria-hidden="true"></i>
+										</a>
+									</span>
+								</template> -->
+							<!-- </span> -->
+						
+<!-- 						<template v-if="item == edit">
+						
+							<span class="input-group-addon1" >Номер телефона</span>
+								<input v-model="item.Phone" v-on:click="inputValueFilterPhone()" type="text" class="form-control" id="phone" name="phone" value="">
+									<span class="input-group-addon" >
+										<a width="100px" v-on:click="successEdit(item, $index, $event)" href="#" title="Применить">
+											<i class="sprite sprite-glyphicons-31-pencil" aria-hidden="true"></i>
+										</a>
+										<a v-on:click="cancelEdit(item, $index, $event)" href="#" title="Отмена">
+											<i class="sprite sprite-glyphicons-31-pencil" aria-hidden="true"></i>
+										</a>
+									</span>
+							</span>
+						</template> -->
+					</div>
+					<br>
+<!-- 	<b-form-checkbox v-model="state" value="accepted" unchecked-value="not_accepted">
+    Пациент отказался от лечения
+  </b-form-checkbox>
+  <b-form-checkbox v-model="state" value="accepted" unchecked-value="not_accepted">
+    Пациент пролечен
+  </b-form-checkbox> -->
+			<ul class="list-group">
+				<li class="list-group-item">
+						Пациент отказался от лечения
+					<div class="material-switch pull-right">
+						<input id="flag_patient_refuse" class="chb" checked name="flag_patient_refuse"  type="checkbox"/>
+						<label for="flag_patient_refuse" class="label-success"></label>
+					</div>
+				</li>
+				<li class="list-group-item">
+							Пациент пролечен
+						<div class="material-switch pull-right">
+							<input class="chb"  id="flag_patient_complite" checked name="flag_patient_complite"  type="checkbox"/>
+							<label for="flag_patient_complite" class="label-success"></label>
+						</div>
+				</li>
+			</ul>
+	</template>
+	<div class="col-md-6">
+			<!-- <div v-if="empty != true" class="input-group col-md-12">
+				<span class="input-group-addon" >Дата приглашения на прием</span>
+				<input type="date" class="form-control" id="date_invitation" name="date_invitation" value="">
+			</div> -->
+			<!-- <div class="input-group col-md-12"> -->
+			<b-form-fieldset
+  label="ФИО регистратора"
+  :state="state"
+  :label-size="1"
+  >
+  <b-form-input v-model="fioreg">
+  <input type="text" class="form-control" id="fioreg" name="fioreg" value="">
+  </b-form-input>
+  </b-form-fieldset>
+				<!-- <span class="input-group-addon1" >ФИО регистратора</span>
+				<input type="text" class="form-control" id="fioreg" name="fioreg" value="">
+				</div> -->
+			<br>
+			<b-form-fieldset
+  label="Примечание"
+  :state="state"
+  :label-size="1"
+  >
+			<b-form-textarea v-model="comment">
+			<textarea class="form-control" id="comment" name="comment" rows="11"></textarea>
+			</b-form-textarea>
+  </b-form-fieldset>
+			<!-- <div class="input-group col-md-12">
+				<span class="input-group-addon1" >Примечание</span>
+				<textarea class="form-control" id="comment" name="comment" rows="11"></textarea>
+			</div> -->
+			<br>
+	</div>
+</div>
+<!-- </div> -->
+<!-- <div class="row"> -->
+	<!-- <div class="col-md-12"> -->
+		<!-- <div class="panel panel-default col-xs-12 input-group"> -->
+			<!-- <div class="panel-heading">Наряды &nbsp; &nbsp; &nbsp;</div> -->
+				<div class="panel-body" id="infoUser">
+					<table class="table table-hover" id="tablePatient">
+						<thead>
+							<tr>
+								<th style="display:none;"></th>
+								<th style="display:none;"></th>
+								<th>Наряд</th>
+								<th>Дата открытия</th>
+								<th>ФИО врач</th>
+								<th>Дата нач. производства</th>
+								<th>ФИО техника</th>
+								<th>Дата закрытия</th>
+								<th>Сумма</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="(item, $index) in items">
+								<template v-if="item !== edit">
+									<td style="display:none;"  v-on:click="editItem(item, $index, $event)">{item.id.String}</td>
+									<td style="width: 28px"  v-on:click="editItem(item, $index, $event)">{item.number_nar.String}</td>
+									<td style="width: 178px"  v-on:click="editItem(item,  $index, $event)">{item.date_open_nar.String}</td>
+									<td  style="width: 125px"  v-on:click="editItem(item,  $index, $event)">{item.vrach_ortoped.String}</td>
+									<td  style="width: 178px"  v-on:click="editItem(item,  $index, $event)">{item.date_start_production.String}</td>
+									<td  style="width: 125px"  v-on:click="editItem(item,  $index, $event)">{item.vrach_technic.String}</td>
+									<td style="width: 178px"  v-on:click="editItem(item, $index, $event)">{item.date_close_nar.String}</td>
+									<td style="width: 125px"  v-on:click="editItem(item, $index, $event)">{item.sum.String}</td>
+									<td>
+										<a v-on:click="editItem(item, $index, $event)" href="#" title="редактировать">
+										<b-button :size="size" :variant="variant" href="">
+											<span class="sprite sprite-glyphicons-31-pencil" aria-hidden="true"></span>
+											</b-button>
+										</a>
+									</td>
+								</template>
+								<template v-if="item == edit">
+									<td  style="display:none;"><input disabled="disabled" class="form-control" v-model="edit.id.String" maxlength="10"></td>
+										<td v-if="edit.number_nar.String == ''"><input class="form-control" v-model="edit.number_nar.String" maxlength="10"></td>
+										<td v-else><input disabled="disabled" class="form-control" v-model="edit.number_nar.String" maxlength="10"></td>
+
+										<td v-if="edit.date_open_nar.String == ''"><input type="date" class="form-control" v-model="edit.date_open_nar.String" maxlength="10"></td>
+										<td v-else><input type="date" disabled="disabled" class="form-control" v-model="edit.date_open_nar.String" maxlength="10"></td>
+
+									<template>
+										<td v-if="edit.vrach_ortoped.String == ''" style="width: auto">
+											<select v-model="selectedVrachOrotped" class="form-control">
+												<option disabled value="">Выберите врача</option>
+												<option v-for="(itemFioVrach, $index) in itemsFioVrach" v-bind:selected="itemFioVrach.value">
+													{itemFioVrach.Fam} {itemFioVrach.Name} {itemFioVrach.Lastname}
+												</option>
+											</select>
+										</td>
+										<td v-else><input  disabled="disabled" class="form-control" v-model="edit.vrach_ortoped.String" maxlength="10"></td>
+									</template>
+										<td v-if="edit.date_start_production.String == ''"><input type="date" class="form-control" v-model="edit.date_start_production.String" maxlength="10"></td>
+										<td v-else><input type="date" disabled="disabled" class="form-control" v-model="edit.date_open_nar.String" maxlength="10"></td>
+									<template>
+										<td v-if="edit.vrach_technic.String == ''" style="width: auto">
+											<select v-model="selectedVrachTechnic" class="form-control">
+												<option disabled value="">Выберите врача</option>
+												<option v-for="(itemFioVrachTechnic, $index) in itemsFioVrach" v-bind:selected="itemFioVrachTechnic.value">
+													{itemFioVrachTechnic.Fam} {itemFioVrachTechnic.Name} {itemFioVrachTechnic.Lastname}
+												</option>
+											</select>
+										</td>
+										<td v-else><input  disabled="disabled" class="form-control" v-model="edit.vrach_teсhnic" maxlength="10"></td>
+									</template>
+									<td v-if="edit.date_close_nar.String == ''"><input type="date" class="form-control" v-model="edit.date_close_nar" maxlength="10"></td>
+									<td v-else><input  disabled="disabled" class="form-control" v-model="edit.date_open_nar" maxlength="10"></td>
+									<td v-if="edit.sum.String == ''"><input class="born form-control" id="sumedit" name="sumedit" type="text" v-model="edit.sum.String" maxlength="50"></td>
+									<td v-else><input disabled="disabled" class="born form-control" id="sumedit" name="sumedit" type="text" v-model="edit.sum.String" maxlength="50"></td>
+									<td>
+										<a v-on:click="successEdit(item, $index, $event)" href="#" title="Применить">
+										<b-button :size="size" :variant="variant" href="">
+											<span class="sprite sprite-glyphicons-31-pencil" aria-hidden="true"></span>
+											</b-button>
+										</a>
+										<a v-on:click="cancelEdit(item, $index, $event)" href="#" title="Отмена">
+										<b-button :size="size" :variant="variant" href="">
+											<span class="sprite sprite-glyphicons-31-pencil" aria-hidden="true"></span>
+											</b-button>
+										</a>
+										<a v-on:click="deleteEdit(item, $index, $event)" href="#" title="Удалить">
+										<b-button :size="size" :variant="variant" href="">
+											<span class="sprite sprite-glyphicons-31-pencil" aria-hidden="true"></span>
+											</b-button>
+										</a>
+									</td>
+								</template>
+							</tr>
+							<template v-if="addItemRow == true">
+								<tr>
+									<td><input class="form-control" v-model="number_nar"  maxlength="10"></td>
+									<td><input type="date" class="form-control" v-model="date_open_nar" maxlength="10"></td>
+									<template>
+										<td style="width: auto">
+											<select v-model="selectedVrachOrotped" class="form-control">
+												<option disabled value="">Выберите врача</option>
+												<option v-for="(itemFioVrach, $index) in itemsFioVrach" v-bind:selected="itemFioVrach.value">
+													{itemFioVrach.Fam} {itemFioVrach.Name} {itemFioVrach.Lastname}
+												</option>
+											</select>
+										</td>
+									</template>
+									<td><input style="width: auto" class="form-control" type="date" v-model="date_start_production" maxlength="10"></td>
+									<td>
+									<template>
+									<td style="width: auto">
+										<select v-model="selectedVrachTechnic" class="form-control">
+											<option disabled value="">Выберите врача</option>
+											<option v-for="(itemFioVrachTechnic, $index) in itemsFioVrachTechnic" v-bind:selected="itemFioVrachTechnic.value">
+												{itemFioVrachTechnic.Fam} {itemFioVrachTechnic.Name} {itemFioVrachTechnic.Lastname}
+											</option>
+										</select>
+									</td>
+
+							</template>
+							</td>
+							<td><input style="width: auto" class="form-control" type="date" v-model="date_close_nar" maxlength="10"></td>
+							<td><input class="born form-control" id="sumedit" name="sumedit" type="text" v-model="sum" maxlength="50"></td>
+							<td>
+								<a v-on:click="successAddNar()" href="#" title="Добавить наряд">
+								<b-button :size="size" :variant="variant" href="">
+									<span class="sprite sprite-glyphicons-31-pencil" aria-hidden="true"></span>
+									</b-button>
+								</a>
+								<a v-on:click="cancelAddItemRowSelected()" href="#" title="Отмена">
+								<b-button :size="size" :variant="variant" href="">
+									<span class="sprite sprite-glyphicons-31-pencil" aria-hidden="true"></span>
+									</b-button>
+								</a>
+							</td>
+							</tr>
+							</template>
+
+						</tbody>
+					</table>
+					<div  v-if="buttonAddRow == true">
+					 <b-button :size="size" :variant="variant" href="">
+						<button  class=" btn btn-default btn-mg" v-on:click="addItem()" href="#" title="Добавить">
+							<span class="sprite sprite-glyphicons-31-pencil" aria-hidden="true"></span>
+						</button>
+						</b-button>
+					</div>
+
+	</div>
+
+</div>
+<script src="/assets/js/custom/edit/infouser.js"></script>
+<script src="/assets/js/custom/edit/patientdate.js"></script>
+			<script type="text/javascript">
+				$("#sum").maskMoney();
+			</script>

@@ -1,0 +1,11 @@
+.sprite {
+    background-image: http://176.197.86.74:3000/assets/css/spritesheet.png;
+    background-repeat: no-repeat;
+    display: block;
+}
+
+.sprite-glyphicons-31-pencil {
+    width: 24px;
+    height: 24px;
+    background-position: -45px -5px;
+}

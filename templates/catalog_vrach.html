@@ -1,0 +1,381 @@
+			<script type="text/javascript" src="/assets/vuejs/vue2.js" charset="UTF-8"></script>
+			<script src="https://cdn.jsdelivr.net/vue.resource/1.2.1/vue-resource.min.js"></script>
+			<script src="/assets/js/alertify.min.js"></script>
+
+			<link rel="stylesheet" type="text/css" href="/assets/css/custom/modal_window_rezograf.css">
+
+			<link rel="stylesheet" href="/assets/css/alertify.core.css" />
+			<link rel="stylesheet" href="/assets/css/alertify.bootstrap.css" />
+			<style type="text/css">
+			.test:first-letter {
+			    text-transform: uppercase;
+				}
+			</style>
+
+			<ul class="breadcrumb">
+				<li><a href="take_to_repair">Главная</a> <span class="divider">/</span></li>
+				<li><a href="#">Справочники</a></li>
+				<li class="active"> Справочник персонала </li>
+			</ul>
+			<!-- template for the modal component -->
+			<script type="text/x-template"  id="modal-template">
+				<!-- 		<transition name="modal"> -->
+				<div class="modal-mask" transition="modal">
+					<div class="modal-wrapper">
+						<div class="modal-container">
+
+							<div class="modal-header">
+								//  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+								<slot name="header">
+
+
+								</slot>
+							</div>
+							<div class="modal-body">
+								<slot name="body">
+									//default body
+									<div class="form-group" >
+										<label for="fam">Фамилия</label>
+										<input type="text" v-model="fam" id="fam" class="form-control test" name="thepost" placeholder="Фамилия" value="" onkeyup="this.value=this.value.replace(/\s+/gi,'')" v-on:keypress="inputValueFilter('fam')">
+									</div>
+									<div class="form-group">
+										<label for="fam">Имя</label>
+										<input onkeyup="this.value=this.value.replace(/\s+/gi,'')" type="text" v-model="name" id="name" class="form-control" name="thepost" placeholder="Имя" value="" v-on:keypress="inputValueFilter('name')">
+									</div>
+									<div class="form-group">
+										<label for="fam">Отчество</label>
+										<input onkeyup="this.value=this.value.replace(/\s+/gi,'')" type="text" v-model="lastname" id="lastname" class="form-control" name="thepost" placeholder="Отчество" value="" v-on:keypress="inputValueFilter('lastname')">
+									</div>
+									<div class="form-group" id="selectedPost">
+									<select  name="select_name" v-model="selected" class="form-control">
+										<option id="default" disabled value="">Выберите должность</option>
+										<option v-for="(item, $index) in items" v-bind:selected="item.value" size="5">
+										{item.ThePost}
+										</option>
+									</select>
+									</div>
+
+								</slot>
+							</div>
+
+
+							<div class="modal-footer">
+								<slot name="footer">
+									// default footer
+									<button class="btn btn-default" @click="$emit('close')">
+										Закрыть
+									</button>
+									<button v-if=" fam == '' || name == '' || lastname == '' || selected == ''" class="btn btn-default" readonly>
+										Добавить
+									</button>
+									<button v-else class="btn btn-primary" @click="savePost()">
+										Добавить
+									</button>
+								</slot>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- 		</transition> -->
+			</script>
+			<div id="app">
+				<modal v-if="showModal" @close="showModal = false">
+					<h3 slot="header">Добавить сотрудника</h3>
+				</modal>
+				<button class="btn btn-primary" id="show-modal" @click="showModal = true">Добавить</button>
+				<!-- use the modal component, pass in the prop -->
+		<!-- 		<modal v-if="showModal" @close="showModal = false">
+
+			      you can use custom content here to overwrite
+			      default content -->
+
+
+
+			  </div>
+
+
+
+			  <table class="table table-hover" id="tablePatient">
+			  	<thead>
+			  		<tr>
+			  			<th></th>
+			  			<th style="display:none;"></th>
+			  			<th style="display:none;"></th>
+			  			<th>Фамилия</th>
+			  			<th>Имя</th>
+			  			<th>Отчество</th>
+			  			<th>Должность</th>
+			  			<th></th>
+			  		</tr>
+			  	</thead>
+			  	<tbody id="infoUser">
+			  		<tr v-for="(item, $index) in items">
+			  			<template v-if="item !== edit">
+			  				<!--<td v-on:click="editItem(item, $index, $event)"></td>-->
+			  				<td style="width: 10px"> <span class="glyphicon glyphicon-user" aria-hidden="true"></span></td>
+			  				<td style="display:none;" v-on:click="editItem(item, $index, $event)" size="10">{item.Id}</td>
+			  				<td style="width: auto;" v-on:click="editItem(item, $index, $event)">{item.Fam}</td>
+			  				<td style="width: auto;" v-on:click="editItem(item, $index, $event)">{item.Name}</td>
+			  				<td style="width: auto;" v-on:click="editItem(item, $index, $event)">{item.Lastname}</td>
+			  				<td style="width: auto;" v-on:click="editItem(item, $index, $event)" size="10">{item.ThePost}</td>
+			  				<td style="width: 50%">
+			  					<a v-on:click="editItem(item, $index, $event)" href="#" title="редактировать">
+			  						<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+			  					</a>
+			  				</td>
+			  			</template>
+
+			  			<!--<template v-if="item.status=='edit'">-->
+			  			<template v-if="item == edit">
+			  				<td style="width: 10px"> <span class="glyphicon glyphicon-user" aria-hidden="true"></span></td>
+			  				<td style="display:none;"><input disabled="disabled" class="form-control" v-model="edit.Id" maxlength="10"></td>
+			  				<td><input style="width: auto;" id="famtable" onkeyup="this.value=this.value.replace(/\s+/gi,'')" v-on:keypress="inputValueFilter('famtable')" class="form-control" v-model="edit.Fam" size="5"></td>
+			  				<td><input style="width: auto;" id="nametable" onkeyup="this.value=this.value.replace(/\s+/gi,'')" v-on:keypress="inputValueFilter('nametable')"class="form-control" v-model="edit.Name" size="5"></td>
+			  				<td><input style="width: auto;" id="lastnametable" onkeyup="this.value=this.value.replace(/\s+/gi,'')" v-on:keypress="inputValueFilter('lastnametable')"class="form-control" v-model="edit.Lastname" size="5"></td>
+	<!-- 		  				<td><input  class="form-control" v-model="edit.ThePost" ></td> -->
+			  				<template>
+								<td>
+									<select name="select_name" v-model="selected" class="form-control" style="width: auto;">
+										<option disabled value="">Выберите должность</option>
+										<option v-for="(item1, $index) in items1" v-bind:selected="item1.value" size="5">
+										{item1.ThePost}
+										</option>
+									</select>
+								</td>
+							</template>
+			  				<td>
+			  					<a v-on:click="successEdit(item, $index, $event)" href="#" title="Применить">
+			  						<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+			  					</a>
+			  					<a v-on:click="cancelEdit(item, $index, $event)" href="#" title="Отмена">
+			  						<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+			  					</a>
+			  					<a v-on:click="deleteEdit(item, $index, $event)" href="#" title="Удалить">
+			  						<span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
+			  					</a>
+			  				</td>
+			  			</template>
+			  		</tr>
+			  	</tbody>
+
+			  </table>
+			</div>
+		</div>
+		<script type="text/javascript">
+
+		function setCapitalLetter(str, elem) {
+		    if(str == "") return false;
+		    str = str[0].toUpperCase() + str.substring(1,str.length);
+				
+		    elem.value = str;
+		}
+
+		Vue.filter('concat', function (value, input) {
+		  // here `input` === `this.userInput`
+		  return value + input
+		})
+
+		Vue.component('modal', {
+			delimiters: ['{', '}'],
+			template: '#modal-template',
+			data: function(){
+				return {
+					fam: '',
+					name: '',
+					lastname: '',
+					thepost: '',
+					selected: '',
+					items: null
+				};
+			},
+			mounted:function(){
+				this.setDefaultItems();
+			},
+			methods: {
+				setDefaultItems: function (){
+				//var items;
+				this.$http.get('/catalog_thepost_get').then(data =>{
+				this.items = JSON.parse(data.body);
+				});
+				console.log(this.items)
+			},
+                inputValueFilter: function(id) {
+                    var input = document.getElementById(id);
+                    input['oninput' in input ? 'oninput' : 'onpropertychange'] = function() {
+                        var str = this.value,
+                            reg =/[^-а-яё\d\s]/g,
+                            regUp =/(^|\s)(\S)/g;
+                        str = str.toLowerCase().replace(reg, '');
+                        str = str.replace(regUp, function g(a, b, c)
+                        {
+                            return b + c.toUpperCase()
+                        });
+                        this.value = str ;
+                    };
+                },
+				savePost: function () {
+		      // Insert AJAX call here...
+		      var me = this;
+		      $.ajax({
+		      	url: '/catalog_vrach_put',
+		      	type: 'post',
+		      	data: {
+							fam: this.fam,
+							name: this.name,
+							lastname: this.lastname,
+		      		the_post: this.selected
+		      	}
+		      }).done(function(val) {
+		      		alertify.set({ delay: 10000 });
+					alertify.success("Сотрудник успешно добавлен");
+		      	console.log(val);
+						me.fam = '';
+						me.name = '';
+						me.lastname = '';
+						me.selected = '';
+		      	infoUser.setDefaultItems();
+		      })
+
+		  }
+		}
+	});
+
+		new Vue({
+			el: '#app',
+			data: {
+				showModal: false
+			}
+		});
+
+
+		var infoUser = new Vue({
+			delimiters: ['{', '}'],
+			el:'#infoUser',
+			data: {
+				edit: {},
+				editIndex: undefined,
+				editIndex1: undefined,
+				items: null,
+				items1: null,
+				selected: '',
+				editIndex: null //Индекс редактируемой записи
+
+								},
+
+								mounted:function(){
+									this.setDefaultItems();
+								},
+								// watch:{
+								// 	edit: function(){
+								// 		$(".born").maskMoney();
+								// 	}
+								// },
+								methods: {
+									setDefaultItems: function (){
+										//var items;
+										this.$http.get('/catalog_vrach_get').then(data =>{
+											this.items = JSON.parse(data.body);
+										});
+									},
+                                    inputValueFilter: function(id) {
+                                        var input = document.getElementById(id);
+                                        input['oninput' in input ? 'oninput' : 'onpropertychange'] = function () {
+                                            var str = this.value,
+                                                reg = /[^-а-яё\d\s]/g,
+                                                regUp = /(^|\s)(\S)/g;
+                                            str = str.toLowerCase().replace(reg, '');
+                                            str = str.replace(regUp, function g(a, b, c) {
+                                                return b + c.toUpperCase()
+                                            });
+                                            this.value = str;
+                                        };
+                                    },
+									editItem: function(item,item1, $index){
+										this.editIndex = $index; //Устанавливает индекс редактируемой записи
+										this.edit = item;
+										this.$http.get('/catalog_thepost_get').then(data =>{
+										this.items1 = JSON.parse(data.body);;
+				                })
+									},
+									successEdit: function (item, item1, $index) {
+										console.log(this.selected);
+										$.ajax({
+											url: '/catalog_vrach_update',
+											type: 'post',
+											data: {
+												id: item.Id,
+												fam: item.Fam,
+												name: item.Name,
+												lastname: item.Lastname,
+												the_post: this.selected
+											}
+										}).done(function(val) {
+												alertify.set({ delay: 10000 });
+												alertify.success("Сотрудник обновлен(на)");
+
+
+										})
+
+										console.log(item1.ThePost)
+											//тут нужно добавить проверку, на ответ сервера.... очень важно!!!!!!!!!! не забивай!!!!
+											 this.items[this.editIndex] = this.edit
+											 this.edit = {}
+											 this.items[this.editIndex].ThePost = this.selected;
+											 this.selected = '';
+
+										},
+
+										deleteEdit: function (item, $index, e) {
+										var me = this;
+										alertify.set({ labels: {
+	  									  ok     : "Удалить",
+	  									  cancel : "Отмена"
+										} });
+
+										alertify.confirm("Удалить сотрудника: "+item.Fam+" ?", function (e) {
+	   									 if (e) {
+	      								  // user clicked "ok"
+	      								  	$.ajax({
+												url: '/catalog_vrach_delete_row',
+												type: 'post',
+												data: {
+													id: item.Id
+												}
+											}).done(function(val) {
+												me.items.splice(me.editIndex, 1);
+												me.edit = {};
+											 //this.items[this.editIndex] = this.edit
+ 											 me.selected = '';
+
+
+												alertify.set({ delay: 10000 });
+												alertify.success("Сотрудник: "+item.Fam+" удален(на)");
+												console.log(val);
+											})
+										//тут нужно добавить проверку, на ответ сервера.... очень важно!!!!!!!!!! не забивай!!!!
+					                // this.items[this.editIndex] = this.edit
+					                // this.edit = {}
+
+					                // this.removeItem(this.items, this.editIndex);
+	  									  } else {
+	     							   // user clicked "cancel"
+	  									  }
+										});
+
+					            },
+
+					            cancelEdit: function (item, $index) {
+											 this.setDefaultItems();
+					            	this.edit = null;
+					            },
+					            // removeItem: function(items, editItem){
+					            // 	this.items.splice(editIndex, 1);
+					            // },
+
+
+
+					        }
+					    });
+
+
+					</script>

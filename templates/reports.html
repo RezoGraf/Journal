@@ -1,0 +1,283 @@
+<link rel="stylesheet" type="text/css" href="/assets/css/custom/add_patient.css">
+<script src="/assets/js/alertify.min.js"></script>
+<link rel="stylesheet" href="/assets/css/alertify.core.css" />
+<link rel="stylesheet" href="/assets/css/alertify.bootstrap.css" />
+<!-- template for the modal component -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/printThis/1.9.0/printThis.min.js">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.suggestions/17.2/js/jquery.suggestions.min.js"></script>
+<script src="/assets/js/custom/jquery.priceformat.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.maskedinput/1.4.1/jquery.maskedinput.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.2.6/vue.min.js" charset="UTF-8"></script>
+
+
+<script type="text/x-template" id="crumb-up">
+    <ul class="breadcrumb" style="margin-bottom: 0px;">
+        <li><a href="take_to_repair">Главная</a> <span class="divider">/</span></li>
+        <!-- <li><a href="#">Справочники</a></li> -->
+        <!-- <li class="active"> Пациенты в очереди </li> -->
+        <slot name="li"></slot>
+    </ul>
+</script>
+
+
+<!-- Выравнивание td в таблице-->
+<style>
+    .col1 {
+        padding: 5px;
+        /* Поля в ячейках */
+        vertical-align: top;
+        /* Выравнивание по верхнему краю ячеек */
+        text-align: center;
+    }
+</style>
+
+<!-- component template -->
+<script type="text/x-template" id="grid-template">
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <td style="width: 10px"></td>
+            <th class="col1" style="width: 20px" v-for="key in columns" @click="sortBy(key)" :class="{ active: sortKey == key }">
+                { translate[key] | capitalize }
+                <span class="arrow" :class="sortOrders[key] > 0 ? 'asc' : 'dsc'">
+          </span>
+            </th>
+            <td v-if="selected_status == 'Пациенты в очереди'" class="col1" style="width: 10px"><b>Пригласить</b></td>
+            <td v-if="selected_status == 'Пациенты на лечении'" class="col1" style="width: 10px"><b>Наряды</b></td>
+            <td v-if="selected_status == 'Приглашенные пациенты'" class="col1" style="width: 20px"><b>Прибыл на лечение</b></td>
+            <td v-if="selected_status == 'Пациенты в очереди'" class="col1" style="width: 10px"><b>Печать</b></td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="entry in filteredData">
+            <td class="col1" style="width: 10px">
+                <a href="#" v-on:click="editItem(entry.Id)" class="glyphicon glyphicon-user" aria-hidden="true"></a>
+            </td>
+            <td class="col1" v-for="key in columns">
+                {entry[key]}
+            </td>
+            <td v-if="selected_status == 'Пациенты в очереди'" style="width: 10px" class="col1">
+                <a href="#" v-on:click="call_patient(entry.Id)" class="glyphicon glyphicon-earphone col1" aria-hidden="true"></a>
+            </td>
+            <td v-if="selected_status == 'Пациенты на лечении'" style="width: 10px" class="col1">
+                <a href="#" v-on:click="add_nar_patient(entry)" class="glyphicon glyphicon-paperclip" aria-hidden="true"></a>
+            </td>
+            <td v-if="selected_status == 'Приглашенные пациенты'" v-on:click="move_patient_treatment(entry)" style="width: 20px" class="col1">
+                <a href="#" class="glyphicon glyphicon-share-alt" aria-hidden="true"></a>
+            </td>
+            <td v-if="selected_status == 'Пациенты в очереди'" style="width: 10px" v-on:click="print(entry.Id)" class="col1">
+                <a href="#" class="glyphicon glyphicon-print" aria-hidden="true"></a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</script>
+
+
+<script type="text/x-template" id="selected-status-patient">
+    <select v-model="selected_status" class="form-control">
+        <option disabled value="">Выберите один из вариантов</option>
+        <option>По вызванным пациентам</option>
+        <option>По закрытым нарядам по всем льготным категориям</option>
+        <option>По открытым нарядам</option>
+        <option>По срокам изготовления</option>
+    </select>
+</script>
+<script type="text/x-template" id="search-btn">
+    <div class="col-md-1">
+        <button v-on:click="searchQuery()" name="query" class="form-group form-control" style="margin-left: 70px; width: 120px; color: #fff; background-color: #428bca; border-color: #357ebd;" onmouseover="this.style.backgroundColor='#14558e';" onmouseout="this.style.backgroundColor='#428bca';" >Сформировать</button>
+    </div>
+</script>
+
+<style type="text/css">
+    @media print {
+        #printBtn 
+        @page { size: landscape;
+                margin: 0; /*Отключает колонтитулы*/
+        }
+    }
+
+</style>
+
+<script type="text/x-template" id="print-page">
+    <div id="print" class="printBtn">
+        СВОДНЫЙ РЕЕСТР ПО ЛЬГОТНОМУ ЗУБОПРОТЕХИРОВАНИЮ.
+
+    </div>
+</script>
+
+<script type="text/x-template" id="cat-sum">
+    <div class="container">
+         <div class="row">
+             <div class="col-md-1">
+                 Переод отчета:
+             </div>
+             <div class="col-md-4">
+                с {date_start} по {date_end}
+             </div>
+             <div class="col-md-1"></div>
+             <div class="col-md-1"></div>
+             <div class="col-md-1"></div>
+             <div class="col-md-1"></div>
+             <div class="col-md-1"></div>
+
+             <div class="col-md-1">
+                 <button  v-on:click="print()" class="button form-control glyphicon glyphicon-print btn-md" ></button>
+             </div>
+         </div>
+        <div class="row">
+            <div class="col-md-1">
+                Вид отчета:
+            </div>
+            <div class="col-md-4">
+                {selected_status}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-1">
+                Итого:
+            </div>
+            <div class="col-md-4">
+                <template v-for="(cat, key) in cats">
+                По льготной категории <b>{key}</b>:&nbsp;<span class="badge"> {cat}</span><br>
+                </template>
+            </div>
+        </div>
+    </div>
+
+</script>
+
+<!-- demo root element -->
+<div id="demo1">
+
+    <crumb-up>
+        <li class="active" slot="li">
+            {selected_status}
+        </li>
+    </crumb-up>
+
+    <!--<modal v-if="showModal" @close="showModal = false">-->
+        <!--<h3 slot="header">Добавить пациента</h3>-->
+    <!--</modal>-->
+    <div class="container" style="padding-right: 0px;padding-left: 0px;width: 1249px;margin-top:20px">
+<!-- 		<div class="row">
+		    <div class="col-md-2">
+            </div>
+			<div class="col-md-2 ">
+			</div>
+		    <div class="col-md-2"  class="form-group" style="width: 110px;margin-top: 0px;padding-left: 0px;padding-right: 0px;">
+				<b>Период отчета:</b>
+            </div>
+			<div class="col-md-2">
+			</div>
+			<div class="col-md-2"  class="form-group" style="width: 85px;margin-top: 0px;padding-left: 0px;padding-right: 0px;margin-left: 0px;">
+                 <b>Вид отчета:</b>
+             </div>
+		</div> -->
+        <div class="row" style=" text-align: center;display: table-row;">
+            <!--<div class="col-xs-3 col-md-2 col-lg-2">-->
+                <!--<button class="form-control btn btn-primary" style="color: #fff; background-color: #428bca; border-color: #357ebd;" onmouseover="this.style.backgroundColor='#14558e';" onmouseout="this.style.backgroundColor='#428bca';" id="show-modal" @click="showModal = true">Добавить пациента</button>-->
+                <!--&lt;!&ndash; use the modal component, pass in the prop &ndash;&gt;-->
+            <!--</div>-->
+			
+			
+			<div class="panel panel-default col-xs-13 col-md-11" style="padding-right: 0px;padding-left: 0px;border-color:#fff;">
+						<div class="row" style=" text-align: center;display: table-row;">
+		    <div class="col-md-2">
+            </div>
+			<div class="col-md-2 ">
+			</div>
+		    <div class="col-md-2"  class="form-group" style="width: 110px;margin-top: 0px;padding-left: 0px;padding-right: 0px;">
+				<b>Период отчета:</b>
+            </div>
+			<div class="col-md-2">
+			</div>
+			<div class="col-md-2"  class="form-group" style="width: 85px;margin-top: 0px;padding-left: 0px;padding-right: 0px;margin-left: 15px;">
+                 <b>Вид отчета:</b>
+             </div>
+		</div>
+			<div class="row" style=" text-align: center;display: table-row;">
+			<div class="col-md-2">
+                    <input name="query" class="form-group form-control" v-model="searchQuery" placeholder="поиск">
+            </div>
+<!--             <div class="col-md-2"  class="form-group" style="width: 102px;margin-top: 20px;padding-left: 0px;padding-right: -10;padding-right: -20;padding-right: 0px;margin-right: -10;margin-right: -20;">
+				Период отчета:
+            </div> -->
+			<div class="col-md-1"  class="form-group" style="width: 8px;margin-top: 20px;padding-left: 0px;padding-right: 0px;margin-left: 35px;">
+                с
+            </div>
+            <div class="col-md-2 ">
+                <input type="date" v-model="date_start" class="form-control">
+            </div>
+            <div class="col-md-1"  class="form-group" style="width: 16px;margin-top: 20px;padding-left: 0px;padding-right: 0px;">
+                по
+            </div>
+            <div class="col-md-2">
+                <input type="date" v-model="date_end" class="form-control">
+            </div>
+
+            <div class="col-md-3" style="margin-left: 70px;">
+                <selected-status-patient></selected-status-patient>
+            </div>
+			<div calss="col-md-2">
+			</div>
+            <search-btn></search-btn>
+			</div>
+			</div>
+			
+			
+			
+			
+            <!-- <div class="col-md-2">
+                    <input name="query" class="form-group form-control" v-model="searchQuery" placeholder="поиск">
+            </div> -->
+<!--             <div class="col-md-2"  class="form-group" style="width: 102px;margin-top: 20px;padding-left: 0px;padding-right: -10;padding-right: -20;padding-right: 0px;margin-right: -10;margin-right: -20;">
+				Период отчета:
+            </div> -->
+			<!-- <div class="col-md-1"  class="form-group" style="width: 8px;margin-top: 20px;padding-left: 0px;padding-right: 0px;margin-left: 35px;">
+                с
+            </div>
+            <div class="col-md-2 ">
+                <input type="date" class="form-control">
+            </div>
+            <div class="col-md-1"  class="form-group" style="width: 16px;margin-top: 20px;padding-left: 0px;padding-right: 0px;">
+                по
+            </div>
+            <div class="col-md-2">
+                <input type="date" class="form-control">
+            </div>
+
+            <div class="col-md-2" style="margin-left: 35px;">
+                <selected-status-patient></selected-status-patient>
+            </div>
+            <search-btn></search-btn> -->
+
+            <div v-if="cats !== null" class="panel panel-default col-md-11" style="text-align: left;">
+                <div class="panel-body">
+                    <cat-sum :cats.sync="cats" :date_start.sync="date_start" :date_end.sync="date_end" :selected_status="selected_status"></cat-sum>
+                </div>
+            </div>
+
+            <div class="panel panel-default col-xs-13 col-md-11" style="padding-right: 0px;padding-left: 0px;">
+                <div class="panel-body">
+                <demo-grid :selected_status.sync="selected_status" :data="gridData" :columns="gridColumns" :filter-key="searchQuery">
+                </demo-grid>
+                </div>
+            </div>
+            <div class="panel panel-default col-xs-13 col-md-11" style="padding-right: 0px;padding-left: 0px;">
+            <print-page v-if="print == true" ></print-page>
+            </div>
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<script type="text/javascript" src="/assets/vuejs/vue2.js" charset="UTF-8"></script>
+
+<!--<script type="text/javascript" src="https://unpkg.com/vue@2.3.0" charset="UTF-8"></script>-->
+<script src="https://cdn.jsdelivr.net/vue.resource/1.2.1/vue-resource.min.js"></script>
+<script type="text/javascript" src="/assets/js/custom/reports.js" charset="UTF-8"></script>
