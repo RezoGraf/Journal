@@ -25,6 +25,7 @@ type PatientEditView struct {
 	Name                string `json:"Name"`
 	Lastname            string `json:"Lasname"`
 	Datebirth           string `json:"Datebirth"`
+	Pasport		    string `json:"Pasport"`
 	Phone               string `json:"Phone"`
 	Homeadres           string `json:"Homeadres"`
 	Numberud            string `json:"Numberud"`
@@ -36,6 +37,13 @@ type PatientEditView struct {
 	FlagPatientComplite string `json:"FlagPatientComplite"`
 	FullName	    string `json:"FullName"`
 	DateRecord	    string `json:"DateRecord"`
+}
+
+type PatientCommentsView struct {
+	PatientId string `json"Id"`
+	Comment string `json:"Comment"`
+	DateComment string `json:"DateComment"`
+	NameReg string `json:"NameReg"`
 }
 
 type Add_rows struct {
@@ -231,13 +239,19 @@ name_reg string){
 
 }
 
-func ModelTakeToRepairInvitationPut(id, date_invitation, comment, patient_refuse string)  {
-	db.Exec(`UPDATE j_patient SET date_invitation = $1, comment = $2, flag_patient_refuse = $3
-	WHERE id = $4
+func ModelTakeToRepairInvitationPut(id, date_invitation, patient_refuse string)  {
+	db.Exec(`UPDATE j_patient SET date_invitation = $1, flag_patient_refuse = $2
+	WHERE id = $3
 	`, utils.NullableString(date_invitation),
-		utils.NullableString(comment),
 		utils.NullableString(patient_refuse),
 		utils.NullableInt(id))
+}
+
+func ModelTakeToRepairCommentPut(id, comment, name_reg string)  {
+	db.Exec(`INSERT INTO j_comments
+	(id_patient, comment, name_reg)
+	VALUES ($1, $2, $3)`,
+	utils.NullableInt(id), utils.NullableString(comment), utils.NullableString(name_reg))
 }
 
 func ModelTakeToRepairPatientComplite(id string)  {
@@ -345,28 +359,50 @@ func ModelCatalogLgotCatGet() []*LgotCat { //Просмотр льготных �
 
 func ModelTakeToRepairGetInfoPatient(rId string)[]*PatientEditView  {
 	rows := db.Select(`SELECT
-	id, full_name, date_birth, date_record, homeadres, lgotcat, phone, comment FROM j_patient
+	id, full_name, date_birth, number_pasport, date_record, homeadres, lgotcat, phone FROM j_patient
 	WHERE id = $1`, rId)
 	var id sql.NullString
 	var full_name sql.NullString
-	var datebirth sql.NullString
-	var daterecord sql.NullString
+	var datebirth pq.NullTime
+	var pasport sql.NullString
+	var daterecord pq.NullTime
 	var homeadres sql.NullString
 	var lgotcat sql.NullString
 	var phone sql.NullString
-	var comment sql.NullString
 	bks := make([]*PatientEditView, 0)
 	for rows.Next() {
 		bk := new(PatientEditView)
-		rows.Scan(&id, &full_name, &datebirth, &daterecord, &homeadres, &lgotcat, &phone, &comment)
+		rows.Scan(&id, &full_name, &datebirth, &pasport, &daterecord, &homeadres, &lgotcat, &phone)
 		bk.Id = id.String
 		bk.FullName = full_name.String
-		bk.DateRecord = daterecord.String
-		bk.Datebirth = datebirth.String
+		bk.Datebirth = utils.FormatDatePqNullTime(datebirth)
+		bk.Pasport = pasport.String
+		bk.DateRecord = utils.FormatDatePqNullTime(daterecord)
 		bk.Homeadres = homeadres.String
 		bk.Lgotcat = lgotcat.String
 		bk.Phone = phone.String
+		bks = append(bks, bk)
+	}
+	return bks
+
+}
+
+func ModelTakeToRepairGetInfoPatientCommentsGet(rId string)[]*PatientCommentsView {
+	rows := db.Select(`SELECT
+	id_patient, comment, date_comment, name_reg FROM j_comments
+	WHERE id_patient = $1`, rId)
+	var id sql.NullString
+	var comment sql.NullString
+	var date_coment pq.NullTime
+	var name_reg sql.NullString
+	bks := make([]*PatientCommentsView, 0)
+	for rows.Next() {
+		bk := new(PatientCommentsView)
+		rows.Scan(&id, &comment, &date_coment, &name_reg)
+		bk.PatientId = id.String
 		bk.Comment = comment.String
+		bk.DateComment = utils.FormatDatePqNullTime(date_coment)
+		bk.NameReg = name_reg.String
 		bks = append(bks, bk)
 	}
 	return bks
@@ -713,11 +749,11 @@ func ModelReportWeek() []*Table_view {
 
 }
 
-func ModelTakeToRepairPatientPut(fam, name, lastname, date_birth, number_phone, home_adres, numer_ud, number_pasport, lgot_cat, fio_reg, note string)  {
+func ModelTakeToRepairPatientPut(fam, name, lastname, date_birth, number_phone, home_adres, numer_ud, number_pasport, lgot_cat, fio_reg string)  {
 	fullname := ""+fam+" "+name+" "+lastname+" "
 	db.Exec(`INSERT INTO j_patient(
-	fam, name, lastname, date_birth, phone, homeadres, numberud, number_pasport, lgotcat, fioreg, comment, full_name)
-	VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
+	fam, name, lastname, date_birth, phone, homeadres, numberud, number_pasport, lgotcat, fioreg, full_name)
+	VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
 	utils.NullableString(fam),
 	utils.NullableString(name),
 		utils.NullableString(lastname),
@@ -728,6 +764,5 @@ func ModelTakeToRepairPatientPut(fam, name, lastname, date_birth, number_phone, 
 		utils.NullableString(number_pasport),
 		utils.NullableString(lgot_cat),
 		utils.NullableString(fio_reg),
-		utils.NullableString(note),
 		utils.NullableString(fullname))
 }

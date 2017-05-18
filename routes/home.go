@@ -252,6 +252,17 @@ func TakeToRepairGetInfoPatient(r *http.Request, w http.ResponseWriter)  {
 	}
 }
 
+func TakeToRepairGetInfoPatientCommentsGet(r *http.Request, w http.ResponseWriter)  {
+	r.ParseForm()
+	bks := models.ModelTakeToRepairGetInfoPatientCommentsGet(r.FormValue("id"))
+	b, err := json.Marshal(bks)
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		fmt.Fprintf(w, "%s \n", b)
+	}
+}
+
 func AddLgotCat(w http.ResponseWriter, r *http.Request, rnd render.Render) {
 	r.ParseForm()
 	row := models.Add_rows{
@@ -539,13 +550,16 @@ func TakeToRepairPatientPut(r *http.Request)  {
 	r.ParseForm()
 	models.ModelTakeToRepairPatientPut(r.FormValue("fam"), r.FormValue("name"), r.FormValue("lastname"),
 		r.FormValue("date_birth"), r.FormValue("number_phone"), r.FormValue("home_adres"),
-		r.FormValue("numer_ud"), r.FormValue("number_pasport") ,r.FormValue("lgot_cat"), r.FormValue("fio_reg"),
-		r.FormValue("note"))
+		r.FormValue("numer_ud"), r.FormValue("number_pasport") ,r.FormValue("lgot_cat"), r.FormValue("fio_reg"))
 }
 
 func TakeToRepairInvitationPut(r *http.Request)  {
 	r.ParseForm()
-	models.ModelTakeToRepairInvitationPut(r.FormValue("id"), r.FormValue("date_invitation"), r.FormValue("comment"), r.FormValue("patient_refuse"))
+	models.ModelTakeToRepairInvitationPut(r.FormValue("id"), r.FormValue("date_invitation"), r.FormValue("patient_refuse"))
+}
+
+func TakeToRepairCommentPut(r *http.Request)  {
+	models.ModelTakeToRepairCommentPut(r.FormValue("id"), r.FormValue("comment"), r.FormValue("name_reg"))
 }
 
 func TakeToRepairPatientComplite(r *http.Request)  {

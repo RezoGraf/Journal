@@ -29,17 +29,16 @@
                         <slot name="header">
                         </slot>
                     </div>
-                    <div class="modal-body" v-for="(item, $index) in items">
+                    <div class="modal-body">
                         <slot name="body">
                             <div class="row">
                                 <div class="panel panel-default">
                                     <div class="panel-heading">Иформация о пациенте</div>
-                                    <div class="panel-body">
+                                    <div class="panel-body" v-for="(item, $index) in items">
                                         <b>Ф.И.О</b> : {item.FullName} <br />
                                         <b>Дата рождения:</b> {item.Datebirth} <br />
                                         <b>Домашний адрес:</b> {item.Homeadres} <br />
                                         <b>Льготная категория:</b> {item.Lgotcat} <br />
-                                        <b>Льготная категория:</b> {item.DateRecord} <br />
                                         <b>Номер очереди</b>: <span style='color:#3e8f3e' id='id_patient'> {item.Id}</span> <br />
                                         <b>Номер телефона:</b> {item.Phone}
                                     </div>
@@ -50,12 +49,23 @@
                                 </div>
                                 <div class="col-xs-2 col-xs-offset-6">
                                     <label class="checkbox">
-									<input type="checkbox" v-model="patient_refuse"> Отказался от лечения
-								</label>
+									    <input type="checkbox" v-model="patient_refuse"> Отказался от лечения
+								    </label>
                                 </div>
-                                <div class="col-xs-18 col-sm-12 col-md-12">
-                                    <textarea type="text" v-bind="comment" id="note" class="form-control" name="note" placeholder="Примечание" value="" rows="7">{item.Comment}</textarea>
-                                </div>
+                                    <div class="col-xs-18 col-sm-12 col-md-12" style="margin:10px 0px 0px 0px;">
+                                        <template v-for="(item, $index) in itemsComments">
+
+                                        <div class="alert alert-warning" role="alert"> <b>{item.NameReg} {item.DateComment} </b><br> {item.Comment} </div>
+                                        </template>
+
+
+                                    </div>
+                                    <div class="col-xs-18 col-sm-12 col-md-12">
+                                        <textarea type="text" v-model="comment" id="note" class="form-control" name="note" placeholder="Примечание" value="" rows="5"></textarea>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <button class="form-control button btn-primary" v-on:click="add_comment()">Добавить примечание</button>
+                                    </div>
                         </slot>
                         </div>
 
@@ -84,24 +94,36 @@
                         <slot name="header">
                         </slot>
                     </div>
-                    <div class="modal-body" v-for="(item, $index) in items">
+                    <div class="modal-body">
                         <slot name="body">
                             <div class="row">
                                 <div class="panel panel-default">
                                     <div class="panel-heading">Иформация о пациенте</div>
-                                    <div class="panel-body">
+                                    <div class="panel-body" v-for="(item, $index) in items">
                                         <b>Ф.И.О</b> : {item.FullName} <br />
                                         <b>Дата рождения:</b> {item.Datebirth} <br />
                                         <b>Домашний адрес:</b> {item.Homeadres} <br />
-										<b>Номер паспорта:</b>	<br/>
+                                        <b>Номер паспорта:</b> {item.Pasport}	<br/>
                                         <b>Льготная категория:</b> {item.Lgotcat} <br />
-                                        <b>Льготная категория:</b> {item.DateRecord} <br />
+                                        <b>Дата записи:</b> {item.DateRecord} <br />
                                         <b>Номер очереди</b>: <span style='color:#3e8f3e' id='id_patient'> {item.Id}</span> <br />
                                         <b>Номер телефона:</b> {item.Phone}
                                     </div>
                                 </div>
+
+                                <div v-if="itemsComments !== '[]'" class="col-xs-18 col-sm-12 col-md-12" style="margin:10px 0px 0px 0px;">
+                                    <template  v-for="(item, $index) in itemsComments">
+
+                                        <div class="alert alert-warning" role="alert"> <b>{item.NameReg} {item.DateComment} </b><br> {item.Comment} </div>
+                                    </template>
+
+
+                                </div>
                                 <div class="col-xs-18 col-sm-12 col-md-12">
-                                    <textarea type="text" v-bind="comment" id="note" class="form-control" name="note" placeholder="Примечание" value="" rows="7">{item.Comment}</textarea>
+                                    <textarea type="text" v-model="comment" id="note" class="form-control" name="note" placeholder="Примечание" value="" rows="5"></textarea>
+                                </div>
+                                <div class="col-xs-3">
+                                    <button class="form-control button btn-primary" v-on:click="add_comment()">Добавить примечание</button>
                                 </div>
                         </slot>
                         </div>

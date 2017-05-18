@@ -349,21 +349,65 @@ Vue.component('modal-call', {
     data: function() {
         return {
             items: null,
+            itemsComments: null,
             date: '',
             comment: '',
-            patient_refuse: false
+            patient_refuse: false,
+            flag_comments: false
         };
     },
     mounted: function() {
         this.setDefaultItems();
+        this.setDefaultItemsComments();
     },
     methods: {
         setDefaultItems: function() {
-            console.log(demo.currentId)
             this.$http.get('/taket_to_repair_get_info_patient?id=' + demo.currentId + '').then(data => {
                 this.items = JSON.parse(data.body);
 
             });
+            this.$http.get('/taket_to_repair_get_info_patient_comments?id=' + demo.currentId + '').then(data => {
+                this.itemsComments = JSON.parse(data.body);
+                console.log(data.body)
+
+        });
+        },
+        setDefaultItemsComments: function() {
+            this.$http.get('/taket_to_repair_get_info_patient_comments?id=' + demo.currentId + '').then(data => {
+                this.itemsComments = JSON.parse(data.body);
+            console.log(data.body)
+
+        })
+            ;
+        },
+        add_comment: function (id) {
+            if(this.comment == ''){
+                alertify.alert("Комментарий не может быть пустым!.", function() {
+                    alertify.message('OK');
+                });
+                return;
+            }else {
+                var me = this;
+                $.ajax({
+                    url: '/take_to_repair_comment_put',
+                    type: 'post',
+                    data: {
+                        id: demo.currentId,
+                        comment: this.comment,
+                        name_reg: navBar.nameReg
+                    }
+                }).done(function (data, status) {
+                    if (status == 'success') {
+                        alertify.set({delay: 10000});
+                        alertify.success("Комментарий добавлен");
+                        me.setDefaultItemsComments();
+                        me.comment = '';
+                    } else {
+                        alertify.set({delay: 50000});
+                        alertify.success("Произошла ошибка");
+                    }
+                })
+            }
         },
         add_call: function() {
             if(this.date == '' && this.patient_refuse == false){
@@ -418,6 +462,7 @@ Vue.component('modal-profile', {
     data: function() {
         return {
             items: null,
+            itemsComments: null,
             date: '',
             comment: '',
             patient_refuse: false
@@ -425,6 +470,7 @@ Vue.component('modal-profile', {
     },
     mounted: function() {
         this.setDefaultItems();
+        this.setDefaultItemsComments();
     },
     methods: {
         setDefaultItems: function() {
@@ -433,6 +479,43 @@ Vue.component('modal-profile', {
                 this.items = JSON.parse(data.body);
 
             });
+        },
+        setDefaultItemsComments: function() {
+            this.$http.get('/taket_to_repair_get_info_patient_comments?id=' + demo.currentId + '').then(data => {
+                this.itemsComments = JSON.parse(data.body);
+            console.log(data.body)
+
+        })
+            ;
+        },
+        add_comment: function (id) {
+            if(this.comment == ''){
+                alertify.alert("Комментарий не может быть пустым!.", function() {
+                    alertify.message('OK');
+                });
+                return;
+            }else {
+                var me = this;
+                $.ajax({
+                    url: '/take_to_repair_comment_put',
+                    type: 'post',
+                    data: {
+                        id: demo.currentId,
+                        comment: this.comment,
+                        name_reg: navBar.nameReg
+                    }
+                }).done(function (data, status) {
+                    if (status == 'success') {
+                        alertify.set({delay: 10000});
+                        alertify.success("Комментарий добавлен");
+                        me.setDefaultItemsComments();
+                        me.comment = '';
+                    } else {
+                        alertify.set({delay: 50000});
+                        alertify.success("Произошла ошибка");
+                    }
+                })
+            }
         },
         add_call: function() {
             if(this.date == '' && this.patient_refuse == false){
@@ -567,8 +650,7 @@ Vue.component('modal', {
                     number_ud: this.number_ud,
                     number_pasport: this.number_pasport,
                     lgot_cat: this.selected_lgot_cat,
-                    fio_reg: this.selected_fio_reg,
-                    note: this.note
+                    fio_reg: this.selected_fio_reg
                 }
             }).done(function(val) {
                 alertify.set({ delay: 10000 });
@@ -587,6 +669,26 @@ Vue.component('modal', {
 
                 demo.setDefaultItems(demo.selected_status);
             })
+            if(me.note !== '') {
+                $.ajax({
+                    url: '/take_to_repair_comment_put',
+                    type: 'post',
+                    data: {
+                        id: demo.currentId,
+                        comment: this.note,
+                        name_reg: navBar.nameReg
+                    }
+                }).done(function (data, status) {
+                    if (status == 'success') {
+                        alertify.set({delay: 10000});
+                        alertify.success("Комментарий добавлен");
+                        me.note = '';
+                    } else {
+                        alertify.set({delay: 50000});
+                        alertify.success("Произошла ошибка");
+                    }
+                })
+            }
 
         }
     }
