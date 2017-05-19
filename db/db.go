@@ -11,7 +11,7 @@ import (
 func db() (*sql.DB, error) {
 	var db *sql.DB
 	var err error
-	db, err = sql.Open("postgres", "postgres://postgres:postgres@localhost/journal")
+	db, err = sql.Open("postgres", "postgres://postgres:postgres@94.229.228.202:7602/journal")
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -4,6 +4,7 @@ import (
 	"encoding/gob"
 	"net/http"
 	"../framework/sessions"
+	"fmt"
 )
 
 var cookieStore = sessions.NewCookieStore([]byte("secret"))
@@ -45,8 +46,14 @@ func CurrentUser(r *http.Request) string{
 
 func ClearSession(r *http.Request, w http.ResponseWriter) {
 
-	ses, _ := cookieStore.Get(r, cookieName)
-	for key, _ := range ses.Values {
+	ses, err := cookieStore.Get(r, cookieName)
+		if err != nil{
+			fmt.Print(err)
+		}
+	for key, err1 := range ses.Values {
+		if err1 != nil{
+			fmt.Print(err1)
+		}
 		delete(ses.Values, key)
 	}
 	ses.Save(r, w)

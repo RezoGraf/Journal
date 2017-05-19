@@ -665,7 +665,6 @@ Vue.component('modal', {
                 me.number_pasport = '';
                 me.selected_lgot_cat = '';
                 // me.selected_fio_reg = '';
-                me.note = '';
 
                 demo.setDefaultItems(demo.selected_status);
             })
@@ -689,6 +688,7 @@ Vue.component('modal', {
                     }
                 })
             }
+            me.note = '';
 
         }
     }
