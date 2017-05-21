@@ -6,12 +6,16 @@ import (
 
 	_ "github.com/lib/pq"
 	"fmt"
+	"../utils"
 )
+
+var connection = utils.LoadConfiguration("config.json")
 
 func db() (*sql.DB, error) {
 	var db *sql.DB
 	var err error
-	db, err = sql.Open("postgres", "postgres://postgres:postgres@94.229.228.202:7602/journal")
+	fmt.Println("!!!", connection.Database.Username)
+	db, err = sql.Open("postgres", "postgres://"+connection.Database.Username+":"+connection.Database.Password+"@"+connection.Host+":"+connection.Port+"/"+connection.Database.Host+"")
 	if err != nil {
 		log.Fatal(err)
 	}

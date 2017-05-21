@@ -1,6 +1,7 @@
 {
   "database": {
     "host": "journal",
+    "username": "postgres",
     "password": "postgres"
   },
   "host": "94.229.228.202",

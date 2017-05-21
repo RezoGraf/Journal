@@ -2,6 +2,7 @@
 <script src="/assets/js/alertify.min.js"></script>
 <link rel="stylesheet" href="/assets/css/alertify.core.css" />
 <link rel="stylesheet" href="/assets/css/alertify.bootstrap.css" />
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/printThis/1.9.0/printThis.min.js">
 <!-- template for the modal component -->
 <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/printThis/1.9.0/printThis.min.js"></script> -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.suggestions/17.2/js/jquery.suggestions.min.js"></script>
@@ -528,6 +529,34 @@
  </select>
 </script>
 
+<script type="text/x-template" id="print-page">
+    <div id="print">
+        <template v-for="item in items_print">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-10" >
+                    <h4>ГАУЗ КО КГКСП №3<br>
+                        пр. Шахтеров 47, Ортопедическое отделение
+                    </h4>
+                    <p>
+                        телефон регистратуры: 64-22-42<br>
+                        <b>Уникальный идентификатор пациента</b>: {item.Id}<br>
+                        <b>Ф.И.О</b> : {item.FullName}<br>
+                        <b>Дата рождения:</b> {item.Datebirth} <br>
+                        <b>Дата записи:</b> {item.DateRecord}<br>
+                        <!--<b>Номер удостоверения:</b> {item.Numberud}<br>-->
+                        <b>Телефон для связи: </b> {item.Phone}<br>
+                        <b>Тип льготы:</b> {item.Lgotcat}<br>
+                        <i>*Если заметили ошибку в номере телефона для связи - обязательно сообщите в регистратуру, иначе Вас не смогут вызывать на приём.</i>
+                        </template>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</script>
+
 <!-- demo root element -->
 <div id="demo">
 
@@ -572,6 +601,7 @@
             </div>
         </div>
     </div>
+    <print-page v-if="show_print == true" :items_print.sync="items_print"></print-page>
 </div>
 
 <script type="text/javascript" src="/assets/vuejs/vue2.js" charset="UTF-8"></script>

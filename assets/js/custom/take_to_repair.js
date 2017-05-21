@@ -11,6 +11,20 @@ Vue.component('crumb-up', {
     }
 })
 
+Vue.component('print-page', {
+    delimiters: ['{', '}'],
+    template: '#print-page',
+    props: {
+        selected_status: String,
+        items_print: null
+    },
+    data: function() {
+        return {
+         show_print: demo.show_print
+        };
+    }
+})
+
 Vue.component('selected-status-patient', {
     delimiters: ['{', '}'],
     template: '#selected-status-patient',
@@ -815,24 +829,33 @@ Vue.component('demo-grid', {
             demo.showModalProfile = true;
         },
 		
-        print: function(id) {
-            $("#mySelector").printThis({
-                debug: false, // show the iframe for debugging
-                importCSS: true, // import page CSS
-                importStyle: false, // import style tags
-                printContainer: true, // grab outer container as well as the contents of the selector
-                loadCSS: "path/to/my.css", // path to additional css file - use an array [] for multiple
-                pageTitle: "", // add title to print page
-                removeInline: false, // remove all inline styles from print elements
-                printDelay: 333, // variable print delay; depending on complexity a higher value may be necessary
-                header: null, // prefix to html
-                footer: null, // postfix to html
-                base: false, // preserve the BASE tag, or accept a string for the URL
-                formValues: true, // preserve input/form values
-                canvas: false, // copy canvas elements (experimental)
-                doctypeString: "...", // enter a different doctype for older markup
-                removeScripts: false // remove script tags from print content
+        print: function(Id) {
+
+            this.$http.get('/taket_to_repair_get_info_patient?id=' +Id+ '').then(data => {
+                demo.items_print = JSON.parse(data.body);
+                console.log(demo.items_print)
+        });
+            demo.show_print = true;
+            setTimeout(function() {
+                $("#print").printThis({
+                 // debug: false, // show the iframe for debugging
+                 // importCSS: true, // import page CSS
+                 // importStyle: false, // import style tags
+                 // printContainer: true, // grab outer container as well as the contents of the selector
+                    pageTitle: "", // add title to print page
+                 // removeInline: false, // remove all inline styles from print elements
+                 // printDelay: 333, // variable print delay; depending on complexity a higher value may be necessary
+                  header: null, // prefix to html
+                  footer: null, // postfix to html
+                 // base: false, // preserve the BASE tag, or accept a string for the URL
+                 // formValues: true, // preserve input/form values
+                 // canvas: false, // copy canvas elements (experimental)
+                 // doctypeString: "...", // enter a different doctype for older markup
+                 // removeScripts: false // remove script tags from print content
             });
+            demo.show_print = false;
+            },1000);
+
         }
     }
 })
@@ -852,7 +875,9 @@ var demo = new Vue({
         currentId: '',
         selected_status: '',
         full_name: '',
-        date_birth: ''
+        date_birth: '',
+        show_print: false,
+        items_print: null
     },
     mounted: function() {
         this.setDefaultItems('Пациенты в очереди');
