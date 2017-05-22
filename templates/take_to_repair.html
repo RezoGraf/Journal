@@ -108,7 +108,10 @@
                                         <b>Льготная категория:</b> {item.Lgotcat} <br />
                                         <b>Дата записи:</b> {item.DateRecord} <br />
                                         <b>Номер очереди</b>: <span style='color:#3e8f3e' id='id_patient'> {item.Id}</span> <br />
-                                        <b>Номер телефона:</b> {item.Phone}
+                                        <b>Номер телефона:</b> {item.Phone}<br />
+                                        <template v-if="selected_status == 'Пациенты в очереди'">
+                                             <b>Перед пациентом</b>: <span style='color:#3e8f3e' id='num_patient'> {item.Num}</span> <b> человек.</b> <br />
+                                        </template>
                                     </div>
                                 </div>
 
@@ -576,7 +579,7 @@
     <modal-call v-if="showModalCall" @close="showModalCall = false">
         <h3 slot="header">Пригласить пациента</h3>
     </modal-call>
-	<modal-profile v-if="showModalProfile" @close="showModalProfile = false">
+	<modal-profile v-if="showModalProfile" :selected_status.sync="selected_status"  @close="showModalProfile = false">
 		<h3 slot="header">Информация о пациенте</h3>
 	</modal-profile>
 

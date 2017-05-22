@@ -37,6 +37,7 @@ type PatientEditView struct {
 	FlagPatientComplite string `json:"FlagPatientComplite"`
 	FullName	    string `json:"FullName"`
 	DateRecord	    string `json:"DateRecord"`
+	Num	  	    string `json"Num`
 }
 
 type PatientCommentsView struct {
@@ -357,10 +358,25 @@ func ModelCatalogLgotCatGet() []*LgotCat { //Просмотр льготных �
 	return bks
 }
 
-func ModelTakeToRepairGetInfoPatient(rId string)[]*PatientEditView  {
-	rows := db.Select(`SELECT
-	id, full_name, date_birth, number_pasport, date_record, homeadres, lgotcat, phone FROM j_patient
-	WHERE id = $1`, rId)
+func ModelTakeToRepairGetInfoPatient(rId, type_query string)[]*PatientEditView  {
+	var query = ""
+	if type_query == "profile_patient"{
+		query = `SELECT
+	id, full_name, date_birth, number_pasport, date_record, homeadres, lgotcat, phone,
+	(select count(*) from j_patient where id < $1 AND date_invitation IS NULL AND flag_patient_refuse = false)
+	as num
+	FROM j_patient
+	WHERE id = $2`
+	}else {
+
+	query = `SELECT
+	id, full_name, date_birth, number_pasport, date_record, homeadres, lgotcat, phone,
+	(select count(*) from j_patient where id < $1)
+	as num
+	FROM j_patient
+	WHERE id = $2`
+	}
+	rows := db.Select(query, rId, rId)
 	var id sql.NullString
 	var full_name sql.NullString
 	var datebirth pq.NullTime
@@ -369,10 +385,11 @@ func ModelTakeToRepairGetInfoPatient(rId string)[]*PatientEditView  {
 	var homeadres sql.NullString
 	var lgotcat sql.NullString
 	var phone sql.NullString
+	var num sql.NullString
 	bks := make([]*PatientEditView, 0)
 	for rows.Next() {
 		bk := new(PatientEditView)
-		rows.Scan(&id, &full_name, &datebirth, &pasport, &daterecord, &homeadres, &lgotcat, &phone)
+		rows.Scan(&id, &full_name, &datebirth, &pasport, &daterecord, &homeadres, &lgotcat, &phone, &num)
 		bk.Id = id.String
 		bk.FullName = full_name.String
 		bk.Datebirth = utils.FormatDatePqNullTime(datebirth)
@@ -381,10 +398,11 @@ func ModelTakeToRepairGetInfoPatient(rId string)[]*PatientEditView  {
 		bk.Homeadres = homeadres.String
 		bk.Lgotcat = lgotcat.String
 		bk.Phone = phone.String
+		bk.Num = num.String
 		bks = append(bks, bk)
 	}
+	fmt.Print(type_query)
 	return bks
-
 }
 
 func ModelTakeToRepairGetInfoPatientCommentsGet(rId string)[]*PatientCommentsView {
@@ -575,7 +593,7 @@ func ModelTakeToRepairQueue()[]*PatientTreatmentSrting  {
 	rows := db.Select(`SELECT
 	id, fam, name, lastname, full_name, date_birth, date_record, lgotcat
 	FROM j_patient
-	WHERE date_invitation IS NULL AND flag_patient_refuse = false`)
+	WHERE date_invitation IS NULL AND flag_patient_refuse = false order by id`)
 	var id sql.NullString
 	var fam sql.NullString
 	var name sql.NullString

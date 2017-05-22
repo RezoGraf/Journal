@@ -473,6 +473,9 @@ Vue.component('modal-call', {
 Vue.component('modal-profile', {
     delimiters: ['{', '}'],
     template: '#modal-template-profile',
+    props: {
+        selected_status: String
+    },
     data: function() {
         return {
             items: null,
@@ -489,7 +492,7 @@ Vue.component('modal-profile', {
     methods: {
         setDefaultItems: function() {
             console.log(demo.currentId)
-            this.$http.get('/taket_to_repair_get_info_patient?id=' + demo.currentId + '').then(data => {
+            this.$http.get('/taket_to_repair_get_info_patient?id=' + demo.currentId +'&type_query=profile_patient').then(data => {
                 this.items = JSON.parse(data.body);
 
             });

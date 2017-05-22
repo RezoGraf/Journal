@@ -243,7 +243,7 @@ func TakeToRepairTreatmentLgotCat(rnd render.Render, r *http.Request) { //Про
 
 func TakeToRepairGetInfoPatient(r *http.Request, w http.ResponseWriter)  {
 	r.ParseForm()
-	bks := models.ModelTakeToRepairGetInfoPatient(r.FormValue("id"))
+	bks := models.ModelTakeToRepairGetInfoPatient(r.FormValue("id"), r.FormValue("type_query"))
 	b, err := json.Marshal(bks)
 	if err != nil {
 		log.Fatal(err)
