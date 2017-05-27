@@ -654,6 +654,8 @@ Vue.component('modal', {
         add_patient: function() {
             // Insert AJAX call here...
             var me = this;
+            var responseId;
+            var id;
             $.ajax({
                 url: '/take_to_repair_patient_put',
                 type: 'post',
@@ -670,6 +672,29 @@ Vue.component('modal', {
                     fio_reg: this.selected_fio_reg
                 }
             }).done(function(val) {
+                me.responseId = JSON.parse(val)
+                me.id = me.responseId[0].Id
+                if(me.note !== '') {
+                    console.log("2response server = "+ me.id)
+                    $.ajax({
+                        url: '/take_to_repair_comment_put',
+                        type: 'post',
+                        data: {
+                            id: me.id,
+                            comment: me.note,
+                            name_reg: navBar.nameReg
+                        }
+                    }).done(function (data, status) {
+                        if (status == 'success') {
+                            alertify.set({delay: 10000});
+                            alertify.success("Комментарий добавлен");
+                            me.note = '';
+                        } else {
+                            alertify.set({delay: 50000});
+                            alertify.success("Произошла ошибка");
+                        }
+                    })
+                }
                 alertify.set({ delay: 10000 });
                 alertify.success("Пациент успешно добавлен");
                 me.fam = '';
@@ -682,30 +707,8 @@ Vue.component('modal', {
                 me.number_pasport = '';
                 me.selected_lgot_cat = '';
                 // me.selected_fio_reg = '';
-
                 demo.setDefaultItems(demo.selected_status);
             })
-            if(me.note !== '') {
-                $.ajax({
-                    url: '/take_to_repair_comment_put',
-                    type: 'post',
-                    data: {
-                        id: demo.currentId,
-                        comment: this.note,
-                        name_reg: navBar.nameReg
-                    }
-                }).done(function (data, status) {
-                    if (status == 'success') {
-                        alertify.set({delay: 10000});
-                        alertify.success("Комментарий добавлен");
-                        me.note = '';
-                    } else {
-                        alertify.set({delay: 50000});
-                        alertify.success("Произошла ошибка");
-                    }
-                })
-            }
-            me.note = '';
 
         }
     }

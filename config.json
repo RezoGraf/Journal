@@ -2,8 +2,8 @@
   "database": {
     "host": "journal",
     "username": "postgres",
-    "password": ""
+    "password": "postgres"
   },
   "host": "",
-  "port": ""
+  "port": "7602"
 }

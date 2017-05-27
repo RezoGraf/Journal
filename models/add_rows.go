@@ -17,7 +17,9 @@ import (
 	//"../session"
 )
 
-
+type PatientReturnId struct {
+	Id string `json:"Id"`
+}
 
 type PatientEditView struct {
 	Id                  string  `json:"Id"`
@@ -767,7 +769,7 @@ func ModelReportWeek() []*Table_view {
 
 }
 
-func ModelTakeToRepairPatientPut(fam, name, lastname, date_birth, number_phone, home_adres, numer_ud, number_pasport, lgot_cat, fio_reg string)  {
+func ModelTakeToRepairPatientPut(fam, name, lastname, date_birth, number_phone, home_adres, numer_ud, number_pasport, lgot_cat, fio_reg string)[]*PatientReturnId {
 	fullname := ""+fam+" "+name+" "+lastname+" "
 	db.Exec(`INSERT INTO j_patient(
 	fam, name, lastname, date_birth, phone, homeadres, numberud, number_pasport, lgotcat, fioreg, full_name)
@@ -783,4 +785,16 @@ func ModelTakeToRepairPatientPut(fam, name, lastname, date_birth, number_phone, 
 		utils.NullableString(lgot_cat),
 		utils.NullableString(fio_reg),
 		utils.NullableString(fullname))
+
+	rows := db.Select(`SELECT id FROM j_patient WHERE full_name = $1 AND date_birth = $2 AND homeadres = $3`,
+	utils.NullableString(fullname), utils.NullableString(date_birth), utils.NullableString(home_adres))
+	bks := make([]*PatientReturnId, 0)
+	var id sql.NullString
+	for rows.Next() {
+		bk := new(PatientReturnId)
+		rows.Scan(&id)
+		bk.Id = id.String
+		bks = append(bks, bk)
+	}
+	return bks
 }

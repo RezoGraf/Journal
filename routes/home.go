@@ -546,11 +546,13 @@ func LgotcatListView(w http.ResponseWriter, rnd render.Render) { //Просмо�
 	fmt.Fprintf(w, "%s \n", b)
 }
 
-func TakeToRepairPatientPut(r *http.Request)  {
+func TakeToRepairPatientPut(w http.ResponseWriter, r *http.Request)  {
 	r.ParseForm()
-	models.ModelTakeToRepairPatientPut(r.FormValue("fam"), r.FormValue("name"), r.FormValue("lastname"),
+	bks := models.ModelTakeToRepairPatientPut(r.FormValue("fam"), r.FormValue("name"), r.FormValue("lastname"),
 		r.FormValue("date_birth"), r.FormValue("number_phone"), r.FormValue("home_adres"),
 		r.FormValue("numer_ud"), r.FormValue("number_pasport") ,r.FormValue("lgot_cat"), r.FormValue("fio_reg"))
+	b, _ := json.Marshal(bks)
+	fmt.Fprintf(w, "%s \n", b)
 }
 
 func TakeToRepairInvitationPut(r *http.Request)  {
