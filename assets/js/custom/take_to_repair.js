@@ -723,7 +723,8 @@ Vue.component('demo-grid', {
         data: Array,
         columns: Array,
         filterKey: String,
-        selected_status: String
+        selected_status: String,
+        rowsPerPage: Number
     },
     data: function() {
         var sortOrders = {}
@@ -733,9 +734,9 @@ Vue.component('demo-grid', {
         return {
             sortKey: '',
             sortOrders: sortOrders,
+            startRow: 0,
             translate: {Id:'Очередь', FullName:'ФИО', Datebirth:'Дата рождения', Lgotcat:'Льгот. кат.' }
         }
-
     },
     computed: {
         filteredData: function() {
@@ -743,6 +744,7 @@ Vue.component('demo-grid', {
             var filterKey = this.filterKey && this.filterKey.toLowerCase()
             var order = this.sortOrders[sortKey] || 1
             var data = this.data
+            this.startRow = 0 // reset to start
             if (filterKey) {
                 data = data.filter(function(row) {
                     return Object.keys(row).some(function(key) {
@@ -758,6 +760,9 @@ Vue.component('demo-grid', {
                 })
             }
             return data
+        },
+        dataPerPage: function() {
+            return this.filteredData.filter((item, index) => index >= this.startRow && index < (this.startRow + this.rowsPerPage))
         }
     },
     filters: {
@@ -777,6 +782,12 @@ Vue.component('demo-grid', {
             demo.full_name = item.FullName;
             demo.date_birth = item.Datebirth;
             demo.showModalnar = true;
+        },
+        movePages: function(amount) {
+            var newStartRow = this.startRow + (amount * this.rowsPerPage);
+            if (newStartRow >= 0 && newStartRow < this.filteredData.length) {
+                this.startRow = newStartRow;
+            }
         },
         patient_complite: function (item) {
             alertify.confirm("Отметить пациента:" + item.FullName + " как пролеченного?", function(e) {
@@ -865,6 +876,10 @@ Vue.component('demo-grid', {
         }
     }
 })
+//-----Костыль не трогать!!! необходим для пагинации----
+var baseData = [];
+var gridData = baseData;
+//------------------------------------------------------
 
 // bootstrap the demo
 var demo = new Vue({
@@ -873,7 +888,7 @@ var demo = new Vue({
     data: {
         searchQuery: '',
         gridColumns: ['Id', 'FullName', 'Datebirth', 'Lgotcat'],
-        gridData: null,
+        gridData: gridData,
         showModal: false,
         showModalnar: false,
         showModalCall: false,
@@ -883,7 +898,8 @@ var demo = new Vue({
         full_name: '',
         date_birth: '',
         show_print: false,
-        items_print: null
+        items_print: null,
+        gridDataBody: null
     },
     mounted: function() {
         this.setDefaultItems('Пациенты в очереди');

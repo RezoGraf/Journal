@@ -472,8 +472,28 @@
     }
 </style>
 
+<style>
+    #page-navigation {
+        display: flex;
+        margin-top: 5px;
+    }
+
+    #page-navigation p {
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+
+    #page-navigation button {
+        background-color: #42b983;
+        border-color: #42b983;
+        color: rgba(255, 255, 255, 0.66);
+    }
+
+</style>
+
 <!-- component template -->
 <script type="text/x-template" id="grid-template">
+    <div>
     <table class="table table-hover">
         <thead>
             <tr>
@@ -491,7 +511,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr v-for="entry in filteredData">
+            <tr v-for="entry in dataPerPage">
                 <td class="col1" style="width: 10px">
                     <a href="#" v-on:click="profile_patient(entry.Id)" class="glyphicon glyphicon-user" aria-hidden="true"></a>
                 </td>
@@ -511,14 +531,24 @@
                     <a href="#" class="glyphicon glyphicon-share-alt" aria-hidden="true"></a>
                 </td>
                 <td v-if="selected_status == 'Пациенты в очереди'" style="width: 10px" v-on:click="print(entry.Id)" class="col1">
-                    <a href="#" class="glyphicon glyphicon-print" aria-hidden="true"></a>
+                    <a href="#" class="glyphicon glyphicon-print"d aria-hidden="true"></a>
                 </td>
                 <td v-if="selected_status == 'Пациенты на лечении'" style="width: 10px" class="col1">
                     <a href="#" v-on:click="patient_complite(entry)" class="glyphicon glyphicon-share-alt col1" aria-hidden="true"></a>
                 </td>
             </tr>
         </tbody>
+
     </table>
+        <ul class="pager">
+            <li><a href="#" @click=movePages(-1)>Предыдущая</a></li>
+            {startRow / rowsPerPage + 1} из {Math.ceil(filteredData.length / rowsPerPage)}
+            <li><a href="#" @click=movePages(1)>Следующая</a></li>
+        </ul>
+        <!--<button @click=movePages(-1)>Back</button>-->
+        <!--{startRow / rowsPerPage + 1} out of {Math.ceil(filteredData.length / rowsPerPage)}-->
+        <!--<button @click=movePages(1)>Next</button>-->
+</div>
 </script>
 
 
@@ -597,7 +627,7 @@
                 </form>
             </div>
             <div class="col-xs-13 col-md-11">
-                <demo-grid :selected_status.sync="selected_status" :data="gridData" :columns="gridColumns" :filter-key="searchQuery">
+                <demo-grid :selected_status.sync="selected_status" :data="gridData" :columns="gridColumns" :filter-key="searchQuery" :rows-per-page="10">
                 </demo-grid>
             </div>
         </div>
@@ -605,8 +635,8 @@
     <print-page v-if="show_print == true" :items_print.sync="items_print"></print-page>
 </div>
 
-<script type="text/javascript" src="/assets/vuejs/vue2.js" charset="UTF-8"></script>
-
+<!--<script type="text/javascript" src="/assets/vuejs/vue2.js" charset="UTF-8"></script>-->
+<script src="https://unpkg.com/vue@2.3.3/dist/vue.min.js"></script>
 <!--<script type="text/javascript" src="https://unpkg.com/vue@2.3.0" charset="UTF-8"></script>-->
 <script src="https://cdn.jsdelivr.net/vue.resource/1.2.1/vue-resource.min.js"></script>
 <script type="text/javascript" src="/assets/js/custom/take_to_repair.js" charset="UTF-8"></script>
