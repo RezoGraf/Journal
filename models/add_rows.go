@@ -363,14 +363,11 @@ func ModelCatalogLgotCatGet() []*LgotCat { //Просмотр льготных �
 func ModelTakeToRepairGetInfoPatient(rId, type_query string)[]*PatientEditView  {
 	var query = ""
 	if type_query == "profile_patient"{
-		query = `SELECT
-	id, full_name, date_birth, number_pasport, date_record, homeadres, lgotcat, phone,
-	(select count(*) from j_patient where id < $1 AND date_invitation IS NULL AND flag_patient_refuse = false)
-	as num
+		query = `SELECT id, full_name, date_birth, number_pasport, date_record, homeadres, lgotcat, phone, CASE WHEN lgotcat='РЛ' THEN (SELECT COUNT(*) FROM j_patient WHERE id < $1 AND lgotcat='РЛ' AND date_invitation IS NULL AND flag_patient_refuse = FALSE)
+	ELSE (SELECT COUNT(*) FROM j_patient WHERE id < $1 AND date_invitation IS NULL AND lgotcat='ВТ' OR lgotcat='УВОВ' OR lgotcat='БЛ' OR lgotcat='ТТ' OR lgotcat='Вдовы' AND flag_patient_refuse = FALSE)
+	END
 	FROM j_patient
-	WHERE id = $2`
-	}else {
-
+	WHERE id = $2`}else {
 	query = `SELECT
 	id, full_name, date_birth, number_pasport, date_record, homeadres, lgotcat, phone,
 	(select count(*) from j_patient where id < $1)

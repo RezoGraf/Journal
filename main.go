@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./framework/martini"
+	"github.com/go-martini/martini"
 	"./middleware/render"
 	"./routes"
 )
